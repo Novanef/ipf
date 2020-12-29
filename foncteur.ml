@@ -2,9 +2,8 @@ module type Coord =
 sig
   type dot
   val zero : dot
-  type coord
   val (++) : dot -> dot -> dot
-  val distance : coord -> coord -> dot
+  val distance : dot*dot -> dot*dot -> dot
 end
 
 module Coord_R : Coord =
@@ -35,9 +34,11 @@ end
 
 module FoncteurTree(X : Coord) =
 struct
+  type coord = X.dot * X.dot
+
   type tree =
   Empty 
-  | Noeud of bool * X.coord * tree list
+  | Noeud of bool * coord * tree list
 
   let (++) = X.(++)
 
@@ -63,5 +64,13 @@ struct
   and weight_list tl = match tl with
   []->zero
   |t::q -> weight t ++ weight_list q
+
+  (*renvoie les listes des abscisses et ordonnées d'un arbre*)
+  let getcoordinates t = [],[]  (*TODO *)
+  and getcoordinates_list tl = [],[] (*TODO *)
+
+  (*renvoie la liste des points possibles d'un arbre rectilinéaire*)
+  let getpoints t = [] (*TODO *)
+
 
 end
