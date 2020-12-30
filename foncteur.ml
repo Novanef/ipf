@@ -141,5 +141,14 @@ struct
     []->failwith"listevide"
     |t::q -> Noeud(false,t,voisins t q cl)
 
+  let rec mem l i=match l with
+  |[]->true
+  |p::q->if i==p then false else mem q i
+
+  let findCycle t=let rec auxfindCycle t v=match t with 
+  |Noeud(b,c,tl)->if mem v c then auxvisit tl (c::v) else false
+  and auxvisit tl v=match tl with
+  |[]->true
+  |p::q->auvisit q (auxfindCycle p v)
 end
 
