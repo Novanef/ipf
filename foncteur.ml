@@ -46,6 +46,15 @@ struct
 
   let distance = X.distance
 
+
+  let rec mem l i=match l with
+  |[]->true
+  |p::q->if i==p then false else mem q i
+
+  let rec uniq l = match l with
+    [] -> []
+    |t::q -> if mem q t then uniq q else t::(uniq q)
+
   (*renvoie la distance entre la coord c et l'arbre t *)
   let distance_to_tree c t = match t with
     Noeud(b,c2,tl) -> distance c c2
@@ -97,12 +106,8 @@ struct
       |t::q -> (aux_y t xl)@(aux xl q) in
     let xl = getabsciss t in 
     let yl = getordinnates t in
-    aux xl yl
+    uniq (aux xl yl)
 
-
-  let rec uniq l = match l with
-    [] -> []
-    |t::q -> if mem q t then uniq q else t::(uniq q)
 
   (*renvoie vrai si c1 et c2 ont des abscisses ou des ordonnées voisines dans la liste cl *)
   let rec voisin c1 c2 cl mode = let rec aux_x x1 x2 cl = match cl with
@@ -141,14 +146,14 @@ struct
     []->failwith"listevide"
     |t::q -> Noeud(false,t,voisins t q cl)
 
-  let rec mem l i=match l with
-  |[]->true
-  |p::q->if i==p then false else mem q i
-
-  let findCycle t=let rec auxfindCycle t v=match t with 
-  |Noeud(b,c,tl)->if mem v c then auxvisit tl (c::v) else false
-  and auxvisit tl v=match tl with
-  |[]->true
-  |p::q->auvisit q (auxfindCycle p v)
+  let findCycle t = let rec aux t v = match t with
+    Noeud(_,c,tl) ->  match v with
+    t::q -> if mem q c then true else aux_list tl (c::v)
+    |[] -> aux_list tl (c::v)
+    and aux_list tl v = match tl with
+      []->false
+      |t::q -> match t with
+        Noeud(_,c,tl2) -> aux t v || aux_list q (c::v)
+    in aux t []
 end
 
