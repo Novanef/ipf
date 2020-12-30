@@ -21,7 +21,7 @@ struct
     |(x2,y2) -> (abs (x1-x2)) + (abs (y1 -y2))
 end
 
-module Coord_E : Coord =
+module Coord_E : Coord with type dot = float =
 struct
 type dot = float
 type coord = dot * dot
@@ -104,7 +104,6 @@ struct
     let xl = getabsciss t in 
     let yl = getordinnates t in
     aux xl yl
-    
-
 
 end
+
