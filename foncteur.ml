@@ -6,7 +6,7 @@ sig
   val distance : dot*dot -> dot*dot -> dot
 end
 
-module Coord_R : Coord =
+module Coord_R : Coord with type dot = int =
 struct
   type dot = int
   type coord = dot * dot
