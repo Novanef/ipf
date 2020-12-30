@@ -29,12 +29,14 @@ type coord = dot * dot
 let zero = 0.0
 
 let (++) d1 d2 = d1 +. d2
-let distance coord1 coord2 = 1.0
+let distance coord1 coord2 = 1.0 (*TODO *)
 end
 
 module FoncteurTree(X : Coord) =
 struct
-  type coord = X.dot * X.dot
+
+  type dot = X.dot
+  type coord = dot * dot
 
   type tree =
   Empty 
@@ -65,12 +67,44 @@ struct
   []->zero
   |t::q -> weight t ++ weight_list q
 
+  (*renvoie la liste des abscisses d'un arbre*)
+  let getabsciss t = let rec aux_abs t xl = match t with
+    Empty->xl
+    |Noeud(b,c,tl)-> match c with
+      (x,y) -> aux_abs_list tl (x::xl)
+    and aux_abs_list tl xl = match tl with
+      []->xl
+      |t::q-> aux_abs_list q (aux_abs t xl)
+    in aux_abs t []
+
+    (*renvoie la liste des ordonnées d'un arbre*)
+  let getordinnates t = let rec aux_ord t yl = match t with
+    Empty->yl
+    |Noeud(b,c,tl)-> match c with
+      (x,y) -> aux_ord_list tl (y::yl)
+    and aux_ord_list tl yl = match tl with
+      []->yl
+      |t::q-> aux_ord_list q (aux_ord t yl)
+    in aux_ord t []
+
   (*renvoie les listes des abscisses et ordonnées d'un arbre*)
-  let getcoordinates t = [],[]  (*TODO *)
-  and getcoordinates_list tl = [],[] (*TODO *)
+  let getcoordinates t = 
+    let xl = getabsciss t in 
+    let yl = getordinnates t in 
+    xl,yl
 
   (*renvoie la liste des points possibles d'un arbre rectilinéaire*)
-  let getpoints t = [] (*TODO *)
+  let getpoints t = 
+    let rec aux_y y xl = match xl with
+      []-> []
+      |t::q-> (t,y)::(aux_y y q) in
+    let rec aux xl yl = match yl with
+      [] -> []
+      |t::q -> (aux_y t xl)@(aux xl q) in
+    let xl = getabsciss t in 
+    let yl = getordinnates t in
+    aux xl yl
+    
 
 
 end
