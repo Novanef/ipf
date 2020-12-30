@@ -15,7 +15,7 @@ struct
 
   let (++) d1 d2 = d1 + d2
 
-  (*retourne la distance de Manhattan entre c1 et c2*)
+  (**retourne la distance de Manhattan entre c1 et c2*)
   let distance c1 c2 = match c1 with
   |(x1,y1) -> match c2 with
     |(x2,y2) -> (abs (x1-x2)) + (abs (y1 -y2))
@@ -29,7 +29,7 @@ type coord = dot * dot
 let zero = 0.0
 
 let (++) d1 d2 = d1 +. d2
-let distance coord1 coord2 = 1.0 (*TODO *)
+let distance coord1 coord2 = 1.0 (**TODO *)
 end
 
 module FoncteurTree(X : Coord) =
@@ -46,33 +46,33 @@ struct
 
   let distance = X.distance
 
-
+  (** renvoie true si i n'est pas dans l *)
   let rec mem l i=match l with
   |[]->true
-  |p::q->if i==p then false else mem q i
+  |p::q->if i=p then false else mem q i
 
   let rec uniq l = match l with
     [] -> []
-    |t::q -> if mem q t then uniq q else t::(uniq q)
+    |t::q -> if not (mem q t) then uniq q else t::(uniq q)
 
-  (*renvoie la distance entre la coord c et l'arbre t *)
+  (**renvoie la distance entre la coord c et l'arbre t *)
   let distance_to_tree c t = match t with
     Noeud(b,c2,tl) -> distance c c2
   
-  (* renvoie la somme des distances entre la coord c et tous les abres de la liste tl*)
+  (** renvoie la somme des distances entre la coord c et tous les abres de la liste tl*)
   let rec distance_tree_list c tl = match tl with
   []->zero
   |t::q -> (distance_to_tree c t) ++ (distance_tree_list c q)
 
-  (* renvoie la somme des poids des arrêtes de t*)
+  (** renvoie la somme des poids des arrêtes de t*)
   let rec weight t = match t with
     Noeud(b,c,tl) -> distance_tree_list c tl ++ weight_list tl
-  (*renvoie la somme des poids des arrêtes des arbres de la liste tl *)
+  (**renvoie la somme des poids des arrêtes des arbres de la liste tl *)
   and weight_list tl = match tl with
   []->zero
   |t::q -> weight t ++ weight_list q
 
-  (*renvoie la liste des abscisses d'un arbre*)
+  (**renvoie la liste des abscisses d'un arbre*)
   let getabsciss t = let rec aux_abs t xl = match t with
     Noeud(b,c,tl)-> match c with
       (x,y) -> aux_abs_list tl (x::xl)
@@ -81,7 +81,7 @@ struct
       |t::q-> aux_abs_list q (aux_abs t xl)
     in aux_abs t []
 
-    (*renvoie la liste des ordonnées d'un arbre*)
+  (**renvoie la liste des ordonnées d'un arbre*)
   let getordinnates t = let rec aux_ord t yl = match t with
     Noeud(b,c,tl)-> match c with
       (x,y) -> aux_ord_list tl (y::yl)
@@ -90,13 +90,13 @@ struct
       |t::q-> aux_ord_list q (aux_ord t yl)
     in aux_ord t []
 
-  (*renvoie les listes des abscisses et ordonnées d'un arbre*)
+  (**renvoie les listes des abscisses et ordonnées d'un arbre*)
   let getcoordinates t = 
     let xl = getabsciss t in 
     let yl = getordinnates t in 
     xl,yl
 
-  (*renvoie la liste des points possibles d'un arbre rectilinéaire*)
+  (** renvoie la liste des points possibles d'un arbre rectilinéaire*)
   let getpoints t = 
     let rec aux_y y xl = match xl with
       []-> []
@@ -109,7 +109,7 @@ struct
     uniq (aux xl yl)
 
 
-  (*renvoie vrai si c1 et c2 ont des abscisses ou des ordonnées voisines dans la liste cl *)
+  (**renvoie vrai si c1 et c2 ont des abscisses ou des ordonnées voisines dans la liste cl *)
   let rec voisin c1 c2 cl mode = let rec aux_x x1 x2 cl = match cl with
   []-> true
   |t::q -> match t with
@@ -129,7 +129,7 @@ struct
     end
   |_->failwith"mauvais mode"
 
-  (*renvoie la liste des arbres de cl voisins de c dans cl *)
+  (**renvoie la liste des arbres de cl voisins de c dans cl *)
   let rec voisins c cl clbis= match c with
   (x,y) -> match cl with
     []->[]
@@ -142,6 +142,7 @@ struct
         else voisins c q clbis
       else voisins c q clbis
 
+(** renvoie le graphe bien mec faudra changer ce comm *)
   let graphe_complet cl = match cl with
     []->failwith"listevide"
     |t::q -> Noeud(false,t,voisins t q cl)
