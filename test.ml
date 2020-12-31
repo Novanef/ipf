@@ -1,4 +1,5 @@
 open Foncteur
+open Projet
 
 (* let dump_coord (x,y) =
     Printf.printf "(%d,%d) " x y
@@ -7,6 +8,7 @@ let dump l =
     let _ = Printf.printf "{ " in
     let _ = List.iter dump_coord l in
     Printf.printf "}\n%!" *)
+
 
 module Tree_R = FoncteurTree(Coord_R)
 open Tree_R
@@ -19,7 +21,6 @@ let f3 = Noeud(true,(2,3),[])
 let t = Noeud(true,(0,0),[f1;f2])
 let l = getpoints t
 let g= graphe_complet l
-
 
 
 let t = Noeud(true,(0,0),[f1])
