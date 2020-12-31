@@ -201,7 +201,9 @@ struct
   |t::q -> is_subtree st t || is_subtree_in_list st q
 
   let findcycle t = let rec aux t v = if (isin t v) then (true,t::v) else match t with
-  Noeud(_,c,tl) -> let _ = Printf.printf "courant noeud : "; dump_coord c ; Printf.printf" | v : "; dump_coord_tree_list v in aux_list tl (t::v)
+  Noeud(_,c,tl) -> 
+  (* let _ = Printf.printf "courant noeud : "; dump_coord c ; Printf.printf" | v : "; dump_coord_tree_list v in *)
+   aux_list tl (t::v)
   and aux_list tl v = match tl with
   []->false,v
   |t::q -> let result = aux t v in ( fst result || fst ( aux_list q (snd result) ) ),(t::v)
