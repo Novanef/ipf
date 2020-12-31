@@ -38,5 +38,5 @@ open Tree_R
   |Noeud(a,d,tlb)->if d!=c then (generatetree (Noeud(a,d, tlb)))::(auxgen q d) else p::(auxgen q c)
 
   (*itération n fois pour trouver un candidat avec un meilleur poids que l'arbre initial*)
-  let rec candidate t n=if n>0 then let c=(generatetree t)in if not(findCycle c)||not(is_connexe c (getbase c)) then candidate t n 
+  let rec candidate t n=if n>0 then let c=(generatetree t)in if not(findcycle c)||not(is_connexe c (getbase c)) then candidate t n 
   else if (weight t)>(weight c) then candidate c (n-1) else candidate t (n-1) else t
