@@ -19,8 +19,7 @@ let f1 = Noeud(true,(1,2),[])
 let f2 = Noeud(true,(4,5),[])
 let f3 = Noeud(true,(2,3),[])
 let t = Noeud(true,(0,0),[f1;f2])
-let l = getpoints t
-let g= graphe_complet l
+let g= graphe_complet t
 
 
 let t = Noeud(true,(0,0),[f1])

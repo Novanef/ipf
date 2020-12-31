@@ -167,10 +167,21 @@ struct
         else voisins c q clbis
       else voisins c q clbis
 
+  let rec change_bool t cl = match t with
+  Noeud(_,c,tl) -> if isin c cl then Noeud(true,c,change_bool_list tl cl) else Noeud(false,c,change_bool_list tl cl)
+  and change_bool_list tl cl = match tl with
+  []->[]
+  |t::q -> (change_bool t cl)::(change_bool_list q cl)
+
   (** renvoie le graphe bien mec faudra changer ce comm *)
-  let graphe_complet cl = match cl with
+  let graphe_complet_sans_bool cl = match cl with
     []->failwith"listevide"
     |t::q -> Noeud(false,t,voisins t q cl)
+
+  let graphe_complet t = 
+    let points = getpoints t in 
+      let coord = getcoordinates t in 
+        change_bool (graphe_complet_sans_bool points) coord
 
   (* let findCycle t = let rec aux t v = match t with
     Noeud(_,c,tl) ->  if isin c v then true else aux_list tl (c::v)
