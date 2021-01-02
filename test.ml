@@ -1,6 +1,6 @@
 open Foncteur
 open Projet
-
+open Display
 (* let dump_coord (x,y) =
     Printf.printf "(%d,%d) " x y
 
@@ -23,4 +23,8 @@ let g= graphe_complet t
 
 
 let t = Noeud(true,(0,0),[f1])
-
+let k=generatecandidate g 15
+let _=draw_rectilinear
+(800,600)
+(gettreepoints k)
+(getbranches k)

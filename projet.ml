@@ -5,12 +5,23 @@ open Tree_R
   let rec deletelist p l=match l with 
   |[]->[]
   |r::q->if r=p then q else r::(deletelist p q)
+
+  let gettreepoints t=let rec auxtreepoints t l=match t with
+  |Noeud(b,c,tl)->auxtreepointsbis tl (uniq (c::l)) 
+  and auxtreepointsbis tl l=match tl with 
+  |[]->l
+  |p::q->uniq ((auxtreepoints p l)@(auxtreepointsbis q l)) in auxtreepoints t []
   (*retourne la base de l'arbre, ie les points avec un bool=true*)
   let getbase t=let rec auxbase t l=match t with
   |Noeud(b,c,tl)->if(b=true) then auxbaseb tl (c::l) else auxbaseb tl l
   and auxbaseb tl l=match tl with
   |[]->uniq l
   |p::q->auxbaseb q (auxbase p l) in auxbase t [] 
+  let getbranches t=let rec auxbranches t l=match t with
+  |Noeud(b,c,tl)->uniq(auxbranchesb c tl l) 
+  and auxbranchesb c tl l=match tl with
+  |[]->l
+  |p::q->match p with |Noeud(a,d,ts)->uniq (auxbranches p ((c,d)::l))@(auxbranchesb c q ((c,d)::l)) in auxbranches t []
   (*retourne la longueur de la liste*)
   let lengthlist l=let rec aux l acc=match l with 
   |[]->acc
