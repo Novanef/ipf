@@ -42,5 +42,5 @@ open Tree_R
   |Noeud(a,d,tlb)->if d!=c then (auxleaf (Noeud(a,d, tlb)))::(auxgen q d) else p::(auxgen q c) in auxleaf t
 
   (*itération n fois pour trouver un candidat avec un meilleur poids que l'arbre initial*)
-  let rec candidate t n=if n>0 then let c=(generatetree t)in if findcycle c||not(is_connexe c (getbase c)) then candidate t n 
-  else if (weight t)>=(weight c) then candidate c (n-1) else candidate t (n-1) else t
+  let generatecandidate t n=let p=getbase t in let rec candidate t n=if n>0 then let c=(generatetree t)in if findcycle c||not(is_connexe c p) then candidate t n 
+  else if (weight t)>=(weight c) then candidate c (n-1) else candidate t (n-1) else t in candidate t n
