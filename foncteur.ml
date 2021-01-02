@@ -65,7 +65,7 @@ struct
   let dump_coord_tree t = match t with
   Noeud(_,c,_) -> dump_coord c
 
-  let dump_coord_tree_list tl = Printf.printf "{ "; List.iter dump_coord_tree tl; Printf.printf " }\n%!"
+  let dump_coord_tree_list tl = Printf.printf "{ "; List.iter dump_coord_tree tl; Printf.printf " }"
 
   (** renvoie true si i n'est pas dans l *)
   let rec mem l i=match l with
@@ -79,6 +79,10 @@ struct
   let rec uniq l = match l with
     [] -> []
     |t::q -> if not (mem q t) then uniq q else t::(uniq q)
+
+  let rec remove_last l = match l with
+  []->[]
+  |t::q -> if q = [] then [] else t::(remove_last q)
 
   (**renvoie la distance entre la coord c et l'arbre t *)
   let distance_to_tree c t = match t with
@@ -120,6 +124,8 @@ struct
     let xl = getabsciss t in 
     let yl = getordinnates t in 
     List.combine xl yl
+
+  let getcoord_treelist tl = let t = Noeud(false,(zero,zero),tl) in let l = getcoordinates t in remove_last l
 
   (** renvoie la liste des points possibles d'un arbre rectilinéaire*)
   let getpoints t = 
@@ -200,13 +206,13 @@ struct
   []->false
   |t::q -> is_subtree st t || is_subtree_in_list st q
 
-  let findcycle t = let rec aux t v = if (isin t v) then (true,t::v) else match t with
+  let findcycle t = let rec aux t v = match t with
   Noeud(_,c,tl) -> 
-  (* let _ = Printf.printf "courant noeud : "; dump_coord c ; Printf.printf" | v : "; dump_coord_tree_list v in *)
-   aux_list tl (t::v)
+  let _ = Printf.printf "courant noeud : "; dump_coord c ; Printf.printf" | v : "; dump_coord_tree_list v;if tl = [] then Printf.printf "nsa\n%!" else Printf.printf "\n%!"; in
+  if (isin t v) then true,t::v else aux_list tl (t::v)
   and aux_list tl v = match tl with
   []->false,v
-  |t::q -> let result = aux t v in ( fst result || fst ( aux_list q (snd result) ) ),(t::v)
+  |t::q -> let result = aux t v in let result2 = aux_list q (snd result) in ( fst result || fst (result2 ) ), (snd result2)
   in fst(aux t [])
 
 
