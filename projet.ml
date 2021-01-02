@@ -83,16 +83,20 @@ open Tree_R
       else t 
   in candidate (graphe_complet t) n
 
-  (*Euclidien*)
-  let gotopoint t p=let rec auxgoto t p l=match t with 
-  |Noeud(b,c,tl)->if p=c then t::l else auxbgoto tl p l
-  and auxbgoto tl p l=match tl with 
-  |[]->l
-  |r::q->auxgoto r p (l@(auxbgoto q p l)) in match (auxgoto t p []) with 
-  |[]->failwith"no point p"
-  |s::t->s
-  (*let createtree p=let rec auxcreatetree p t l=match p with 
-  |[]->t
-  |r::q->let c=getrandom p in if l=[] then auxcreatetree (deletelist c p) (Noeud(true,c,[])) (c::l) 
-  else match (gotopoint t (getrandom p)) with
-  |Noeud(b,c,tl)->tl*)
+   (*Euclidien*)
+   (**Relie le point p au noeud x de l'arbre t*)
+   let rec putpoint x t p=match t with 
+   |Noeud(b,c,tl)->if c=x then Noeud(b,c,(Noeud(true,p,[])::tl)) 
+   else match tl with 
+   |[]->Noeud(b,c,[])
+   |r::q->Noeud(b,c,(putpoint x r p)::(auxputpoint x q p))
+   and auxputpoint x q p=match q with
+   |[]->[]
+   |r::t->(putpoint x r p)::(auxputpoint x t p)
+
+   (**relie les points de la liste p entre eux  (la liste l contient les points faisant parti de l'arbre pour les relier aux nouveaux points)*)
+   let createtree p=let rec auxcreatetree p t l=match p with 
+   |[]->t
+   |r::q->let c=getrandom p in if l=[] then auxcreatetree (deletelist c p) (Noeud(true,c,[])) (c::l) 
+   else let k=getrandom (c::l) in auxcreatetree (deletelist c p) (putpoint k t c) (c::l)
+   in auxcreatetree p (Noeud(false,(0,0),[])) []
