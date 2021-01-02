@@ -53,5 +53,19 @@ open Tree_R
   |Noeud(a,d,tlb)->if d!=c then (auxleaf (Noeud(a,d, tlb)))::(auxgen q d) else p::(auxgen q c) in auxleaf t
 
   (*itération n fois pour trouver un candidat avec un meilleur poids que l'arbre initial*)
-  let generatecandidate t n=let p=getbase t in let rec candidate t n=if n>0 then let c=(generatetree t)in if findcycle c||not(is_connexe c p) then candidate t n 
-  else if (weight t)>=(weight c) then candidate c (n-1) else candidate t (n-1) else t in candidate t n
+  let generatecandidate t n=let p=getbase t in let rec candidate t n=if n>0 then let c=(generatetree t)in if (findcycle c)&&not(is_connexe c p) then candidate t n 
+  else if (findcycle c)&&(is_connexe c p) then candidate c n else if not(findcycle c)&&(is_connexe c p)&&(weight t)>=(weight c) then candidate c (n-1) else candidate t (n-1) else t in candidate t n
+
+  (*Euclidien*)
+  let gotopoint t p=let rec auxgoto t p l=match t with 
+  |Noeud(b,c,tl)->if p=c then t::l else auxbgoto tl p l
+  and auxbgoto tl p l=match tl with 
+  |[]->l
+  |r::q->auxgoto r p (l@(auxbgoto q p l)) in match (auxgoto t p []) with 
+  |[]->failwith"no point p"
+  |s::t->s
+  (*let createtree p=let rec auxcreatetree p t l=match p with 
+  |[]->t
+  |r::q->let c=getrandom p in if l=[] then auxcreatetree (deletelist c p) (Noeud(true,c,[])) (c::l) 
+  else match (gotopoint t (getrandom p)) with
+  |Noeud(b,c,tl)->tl*)
