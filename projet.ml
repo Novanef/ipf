@@ -52,9 +52,35 @@ open Tree_R
   |p::q->match p with 
   |Noeud(a,d,tlb)->if d!=c then (auxleaf (Noeud(a,d, tlb)))::(auxgen q d) else p::(auxgen q c) in auxleaf t
 
+  let rec is_tree_useful t = match t with
+  |Noeud(b,_,tl) -> if b then true else is_tree_list_useful tl
+  and is_tree_list_useful tl = match tl with
+  []->false
+  |t::q -> (is_tree_useful t) || (is_tree_list_useful q)
+
+  let rec del_useless_branches t = match t with
+  Noeud(b,c,tl) -> if not (is_tree_list_useful tl) then Noeud(b,c,[]) else Noeud(b,c,del_useless_branches_list tl)
+  and del_useless_branches_list tl = match tl with
+  []->[]
+  |t::q-> if not (is_tree_useful t) then del_useless_branches_list q else (del_useless_branches t)::(del_useless_branches_list q) 
+
   (*itération n fois pour trouver un candidat avec un meilleur poids que l'arbre initial*)
-  let generatecandidate t n=let p=getbase t in let rec candidate t n=if n>0 then let c=(generatetree t)in if (findcycle c)&&not(is_connexe c p) then candidate t n 
-  else if (findcycle c)&&(is_connexe c p) then candidate c n else if not(findcycle c)&&(is_connexe c p)&&(weight t)>=(weight c) then candidate c (n-1) else candidate t (n-1) else t in candidate t n
+  let generatecandidate t n = let p = getbase t in 
+    let rec candidate t n = 
+      if n > 0 then 
+        let c = generatetree t in 
+        if (findcycle c) && not(is_connexe c p) then 
+          candidate t n 
+        else 
+          if (findcycle c) && (is_connexe c p) then 
+          candidate c n 
+          else 
+            if not(findcycle c) &&( is_connexe c p) && (weight t) >= (weight (del_useless_branches c) ) then 
+            candidate (del_useless_branches c) (n-1) 
+            else 
+            candidate t (n-1) 
+      else t 
+  in candidate (graphe_complet t) n
 
   (*Euclidien*)
   let gotopoint t p=let rec auxgoto t p l=match t with 
