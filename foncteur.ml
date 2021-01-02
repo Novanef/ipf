@@ -173,29 +173,25 @@ struct
         else voisins c q clbis
       else voisins c q clbis
 
+  (** renvoie l'arbre t dont tous les sous-arbes dont les coordonnées sont dans cl ont leur bool à true, et tous les autre ont leur bool à false *)
   let rec change_bool t cl = match t with
   Noeud(_,c,tl) -> if isin c cl then Noeud(true,c,change_bool_list tl cl) else Noeud(false,c,change_bool_list tl cl)
   and change_bool_list tl cl = match tl with
   []->[]
   |t::q -> (change_bool t cl)::(change_bool_list q cl)
 
-  (** renvoie le graphe bien mec faudra changer ce comm *)
+  (** renvoie un graphe contenant tous les points de cl, chacun reliés à leur plus proche voisin vertical et horizontal*)
   let graphe_complet_sans_bool cl = match cl with
     []->failwith"listevide"
     |t::q -> Noeud(false,t,voisins t q cl)
 
+  (** renvoie un graphe complété à partir de t, ie un graphe avec tous les points supplémentaires utiles selon la distance de Manhattan
+  et dont tous les sous-arbres sont reliés à leur plus proches voisins vertical et horizontal *)
   let graphe_complet t = 
     let points = getpoints t in 
       let coord = getcoordinates t in 
         change_bool (graphe_complet_sans_bool points) coord
 
-  (* let findCycle t = let rec aux t v = match t with
-    Noeud(_,c,tl) ->  if isin c v then true else aux_list tl (c::v)
-    and aux_list tl v = match tl with
-      []->false
-      |t::q -> match t with
-        Noeud(_,c,tl2) -> aux t v || aux_list tl2 (c::v)
-    in aux t [] *)
   
   (**renvoie true si st est un sous-arbre de t (au sens large)*)
   let rec is_subtree st t = match t with
@@ -208,7 +204,7 @@ struct
 
   let findcycle t = let rec aux t v = match t with
   Noeud(_,c,tl) -> 
-  let _ = Printf.printf "courant noeud : "; dump_coord c ; Printf.printf" | v : "; dump_coord_tree_list v;if tl = [] then Printf.printf "nsa\n%!" else Printf.printf "\n%!"; in
+  (* let _ = Printf.printf "courant noeud : "; dump_coord c ; Printf.printf" | v : "; dump_coord_tree_list v;if tl = [] then Printf.printf "nsa\n%!" else Printf.printf "\n%!"; in *)
   if (isin t v) then true,t::v else aux_list tl (t::v)
   and aux_list tl v = match tl with
   []->false,v
@@ -221,5 +217,10 @@ struct
   and par_p_list tl = match tl with
   []->0
   |t::q->par_p t + par_p_list q
+
+  let rec create_tree cl = match cl with
+  []->failwith"liste vide"
+  |t::[]-> Noeud(false,t,[])
+  |t::q->Noeud(true,t,[create_tree q])
 end
 
