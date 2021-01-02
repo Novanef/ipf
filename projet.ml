@@ -11,6 +11,7 @@ open Tree_R
   and auxtreepointsbis tl l=match tl with 
   |[]->l
   |p::q->uniq ((auxtreepoints p l)@(auxtreepointsbis q l)) in auxtreepoints t []
+  
   (*retourne la base de l'arbre, ie les points avec un bool=true*)
   let getbase t=let rec auxbase t l=match t with
   |Noeud(b,c,tl)->if(b=true) then auxbaseb tl (c::l) else auxbaseb tl l
