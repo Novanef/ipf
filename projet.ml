@@ -215,6 +215,27 @@ Printf.printf "\n erreur itération %i:" n; dump_coord coord1; dump_coord coord2
 
    (*Euclidien*)
    (**Relie le point p au noeud x de l'arbre t*)
+    (*Euclidien*)
+
+module Tree_E = FoncteurTree(Coord_E)
+open Tree_E
+
+let abs x =if x>0.0 then x else (-.x)
+
+    (**renvoie la liste des points relais, ie les points avec un bool false*)
+    let getrelais t=let rec auxrelais t l=match t with
+    |Noeud(b,c,tl)->if not(b) then auxrelaisb tl (c::l) else auxrelaisb tl l
+    and auxrelaisb tl l=match tl with
+    |[]->uniq l
+    |p::q->auxrelaisb q (auxrelais p l) in auxrelais t [] 
+    (**renvoie la liste des points de l'arbre*)
+    let gettreepoints t=let rec auxtreepoints t l=match t with
+    |Noeud(b,c,tl)->auxtreepointsbis tl (uniq (c::l)) 
+    and auxtreepointsbis tl l=match tl with 
+    |[]->l
+    |p::q->uniq ((auxtreepoints p l)@(auxtreepointsbis q l)) in auxtreepoints t []
+
+   (**Relie le point p au noeud x de l'arbre t*)
    let rec putpoint x t p=match t with 
    |Noeud(b,c,tl)->if c=x then Noeud(b,c,(Noeud(true,p,[])::tl)) 
    else match tl with 
@@ -224,9 +245,142 @@ Printf.printf "\n erreur itération %i:" n; dump_coord coord1; dump_coord coord2
    |[]->[]
    |r::t->(putpoint x r p)::(auxputpoint x t p)
 
+   let getrandom l=if(lengthlist l)>0 then let rec auxrand l x=match l with 
+  |[]->failwith"liste vide"
+  |p::q->if x=0 then p else auxrand q (x-1) 
+  in auxrand l (Random.int (lengthlist l)) else failwith"liste vide"
+
    (**relie les points de la liste p entre eux  (la liste l contient les points faisant parti de l'arbre pour les relier aux nouveaux points)*)
-   let createtree p=let rec auxcreatetree p t l=match p with 
-   |[]->t
-   |r::q->let c=getrandom p in if l=[] then auxcreatetree (deletelist c p) (Noeud(true,c,[])) (c::l) 
-   else let k=getrandom (c::l) in auxcreatetree (deletelist c p) (putpoint k t c) (c::l)
-   in auxcreatetree p (Noeud(false,(0,0),[])) []
+   let create_tree_e p=let rec auxcreatetree p t l=
+   if not(p=[]) then let c=getrandom p in if l=[] then auxcreatetree (deletelist c p) (Noeud(true,c,[])) (c::l) 
+   else let k=getrandom l in auxcreatetree (deletelist c p) (putpoint k t c) (c::l) else t
+   in auxcreatetree p (Noeud(false,(0.0,0.0),[])) []
+
+   (**retourne un couple de booléen correspondant à la comparaison des coordonnées de 2 points, true si p1 strictement sup à p2*)
+  let compare p1 p2=match p1,p2 with
+  |(a,b),(x,y)->if a>x&&b>y then true,true else if a>x&&b<=y then true,false
+  else if a<=x&&b>y then false,true else false,false
+  
+   (**renvoie un point avec les coordonnées minimales de la liste*)
+   let getmin l=match l with
+   |[]->failwith"listevide"
+   |p::q-> let rec auxmin min l=match l with 
+   |[]->min
+   |p::q->let c=compare min p in if (fst c)&&(snd c) then auxmin p q 
+   else if not(fst c)&&(snd c) then auxmin (fst min,snd p) q
+   else if (fst c)&&not(snd c) then auxmin (fst p,snd min) q
+   else auxmin min q in auxmin p l
+
+   (**renvoie un point avec les coordonnées maximales de la liste*)
+   let getmax l=match l with
+   |[]->failwith"listevide"
+   |p::q-> let rec auxmax max l=match l with 
+   |[]->max
+   |p::q->let c=compare max p in if (fst c)&&(snd c) then auxmax max q 
+   else if not(fst c)&&(snd c) then auxmax (fst p,snd max) q
+   else if (fst c)&&not(snd c) then auxmax (fst max,snd p) q
+   else auxmax p q in auxmax p l
+
+  let sign p1 p2 p3=match p1,p2,p3 with
+  |(a,b),(c,d),(x,y)->((a-.x)*.(d-.y))-.((c-.x)*.(b-.y))
+
+  (**retourne true si le point p est dans le triangle v1v2v3*)
+  let isintriangle p v1 v2 v3=let res1,res2,res3=(sign p v1 v2),(sign p v2 v3),(sign p v3 v1) in
+  not((res1<0.||res2<0.||res3<0.)&&(res1>0.||res2>0.||res3>0.))
+
+  (*retourne la base de l'arbre, ie les points avec un bool=true*)
+  let getbase t=let rec auxbase t l=match t with
+  |Noeud(b,c,tl)->if(b) then auxbaseb tl (c::l) else auxbaseb tl l
+  and auxbaseb tl l=match tl with
+  |[]->uniq l
+  |p::q->auxbaseb q (auxbase p l) in auxbase t [] 
+  
+  (**retourne une liste de 3 points parmi ceux de l'arbre*)
+  let gettriangle t=let rec auxtriangle n r l=if n>0 then let p=getrandom l in auxtriangle (n-1) (p::r) (deletelist p l) 
+  else r
+  in auxtriangle 3 [] (gettreepoints t)
+  let pop l=match l with 
+  |[]->failwith"liste vide"
+  |p::q->p,q
+
+  (**retourne une liste d'arètes entre le noeud t sans les noeuds compris dans l*)
+  let checkbranches t l=match t with 
+  |Noeud(b,c,tl)->let rec auxcheck tl l=match tl with 
+  |[]->[]
+  |p::q -> match p with 
+  |Noeud(a,d,tll)->if not(mem l d) then auxcheck q l else (Noeud(a,d,tll))::(auxcheck q l) in Noeud(b,c,auxcheck tl l )
+  
+  (**retourne le sous arbre de coordonnées p*)
+  let subtree p t=let rec getsubtree p t l=match t with 
+  |Noeud(b,c,tl)->if c=p then Noeud(b,c,tl)::l else auxgoto p tl l
+  and auxgoto p tl l=match tl with
+  |[]->l
+  |r::q->(getsubtree p r l)@(auxgoto p q l) in match (getsubtree p t []) with
+  |[]->failwith"not found"
+  |p::q-> p
+
+  (**renvoie les coordonées des points auxquels la racine de t est reliée*)
+  let getbranchcoord t=match t with
+  |Noeud(b,c,tl)->let rec auxbranchcoord tl l=match tl with
+  |[]->l
+  |p::q->match p with 
+  |Noeud(b,c,tl)->auxbranchcoord q (c::l) in auxbranchcoord tl []
+  (**renvoie les coordonnées d'un point dans le triangle formé par les coordonnées de 3 points de t aléatoires*)
+  let genpoint tri =let max,min=getmax tri,getmin tri in let rec auxgenpoint p1 p2 p3= let randpoint max min=
+  let p=(Random.float (fst (max)-.fst (min))+.fst min,Random.float(snd(max)-.snd(min))+.snd(min)) in if (isintriangle p p1 p2 p3) then p 
+  else auxgenpoint p1 p2 p3 in randpoint max min in auxgenpoint (fst(pop tri)) (fst(pop (snd(pop tri)))) (fst(pop(snd(pop(snd(pop tri))))))
+
+  (**ajoute un point généré aléatoirement dans le triangle formé par 3 points choisi aléatoirement parmi ceux de t
+  puis supprime les arètes entre ces 3 points et les relie à p*)
+  let addtotree_e t=if(lengthlist (gettreepoints t))<3 then failwith"moins de 3 points" 
+  else let l=(gettriangle t) in let p=genpoint l in let rec addpoint p l k=match l with
+  |[]->Noeud(false,p,k)
+  |r::q->addpoint p q ((checkbranches (subtree r t) l)::k) in addpoint p l []
+
+  (**change la position d'un point relais aléatoire*)
+  let movepoint t=let rec auxmove t p=match t with
+  |Noeud(b,c,tl)->if c=p then Noeud(b,genpoint (getbranchcoord t),tl) else Noeud(b,c,auxbmove tl p)
+  and auxbmove tl p=match tl with
+  |[]->[]
+  |r::q->(auxmove r p)::(auxbmove q p)  in auxmove t (getrandom (getrelais t))
+
+  (**fusionne les listes l et s sans doublons*)
+  let rec mergelists l s=match l with 
+  |[]-> s
+  |p::q->if mem s p then mergelists q (p::s) else mergelists q s
+
+  (**retourne le noeud p de contenu dans les arêtes de t et fusionne les arêtes de p avec la liste l*)
+  let rec merge p t l=match t with 
+  |Noeud(b,c,tl)->match tl with 
+  |[]->(match p with 
+  |Noeud(a,d,tll)->Noeud(a,d,mergelists l tll))
+  |r::q->if not(r=p) then aux p l q else merge p r l
+  and aux p l tl=match tl with
+  |[]->failwith"liste vide"
+  |t::q->if t=p then merge p t l else aux p l q
+
+  (**tire un point relais au hasard et donne ses arêtes à un point aléatoire auquel il est relié*)
+  let mergepoint t=let rec auxmerge t p= match t with 
+  |Noeud(b,c,tl)->if c=p then let pt=subtree (getrandom (getbranchcoord t)) t in (merge pt t (deletelist pt tl)) else Noeud(b,c,auxbmerge tl p)
+  and auxbmerge tl p=match tl with
+  |[]->[]
+  |r::q->(auxmerge r p)::(auxbmerge q p)  in auxmerge t (getrandom (getrelais t))
+
+  (**renvoie une liste contenant un seul arbre différente de coordonnées du point p*)
+  let replace p tl t=match tl with 
+  |[]->[]
+  |r::q->match r with 
+  |Noeud(b,c,tll)->let pt=getrandom((deletelist c (deletelist p (gettreepoints t)))) in [subtree pt t]
+
+  (*retourne la base de l'arbre, ie les points avec un bool=true, qui n'ont qu'une seule arête*)
+  let getbase1 t=let rec auxbase t l=match t with
+  |Noeud(b,c,tl)->if(b)&&(lengthlist tl=1) then auxbaseb tl (c::l) else auxbaseb tl l
+  and auxbaseb tl l=match tl with
+  |[]->uniq l
+  |p::q->auxbaseb q (auxbase p l) in auxbase t [] 
+  (**recherche un point de départ (bool true) avec une seule arête et la change*)
+  let newbranch t=let rec auxnew s p=match s with
+  |Noeud(b,c,tl)->if c=p then if lengthlist tl=1 then Noeud(b,c,replace p tl t) else Noeud(b,c,tl) else Noeud(b,c,auxbnew tl p)
+  and auxbnew tl p=match tl with
+  |[]->[]
+  |r::q->(auxnew r p)::(auxbnew q p)  in auxnew t (getrandom (getbase1 t))
