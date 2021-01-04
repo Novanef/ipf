@@ -127,6 +127,11 @@ struct
 
   let getcoord_treelist tl = let t = Noeud(false,(zero,zero),tl) in let l = getcoordinates t in remove_last l
 
+  let rec getcoord_treelist_nosubtree tl = match tl with
+  []->[]
+  |t::q-> match t with
+  Noeud(_,c,_)-> c::(getcoord_treelist_nosubtree q)
+
   (** renvoie la liste des points possibles d'un arbre rectilinéaire*)
   let getpoints t = 
     let rec aux_y y xl = match xl with
@@ -202,10 +207,14 @@ struct
   []->false
   |t::q -> is_subtree st t || is_subtree_in_list st q
 
-  let findcycle t = let rec aux t v = match t with
+  
+
+  let findcycle t = let rec aux t v = let coord_v = getcoord_treelist_nosubtree v in match t with
   Noeud(_,c,tl) -> 
   (* let _ = Printf.printf "courant noeud : "; dump_coord c ; Printf.printf" | v : "; dump_coord_tree_list v;if tl = [] then Printf.printf "nsa\n%!" else Printf.printf "\n%!"; in *)
-  if (isin t v) then true,t::v else aux_list tl (t::v)
+  if (isin c coord_v) then 
+  (* let _ = Printf.printf"Fin : "; dump_coord c; Printf.printf "est dans v = "; dump coord_v in  *)
+  true,(t::v) else aux_list tl (t::v)
   and aux_list tl v = match tl with
   []->false,v
   |t::q -> let result = aux t v in let result2 = aux_list q (snd result) in ( fst result || fst (result2 ) ), (snd result2)
@@ -220,7 +229,14 @@ struct
 
   let rec create_tree cl = match cl with
   []->failwith"liste vide"
-  |t::[]-> Noeud(false,t,[])
+  |t::[]-> Noeud(true,t,[])
   |t::q->Noeud(true,t,[create_tree q])
+
+  let rec print_tree t = match t with
+Noeud(b,c,tl)->Printf.printf "Noeud(%b,(" b ;dump_coord c; Printf.printf ",[" ; print_tree_list tl;Printf.printf "])"
+and print_tree_list tl = match tl with
+[]->Printf.printf ""
+|t::q-> Printf.printf ""; print_tree t;if q != [] then Printf.printf ";" else (); print_tree_list q; Printf.printf "\n"
+
 end
 
