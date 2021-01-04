@@ -23,7 +23,7 @@ let t =
 let k=generatecandidate t 1
 let _ = Printf.printf "\ncyclique : %b\n" (findcycle k)
 let _ = Printf.printf "connexe : %b\n" (is_connexe k (getbase t))
-let _=draw_rectilinear
-(800,600)
+let _=draw_rectilinear 
+(800,600) 
 (gettreepoints k)
 (getbranches k)

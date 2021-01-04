@@ -23,24 +23,8 @@ Printf.printf "\n erreur itération %i:" n; dump_coord coord1; dump_coord coord2
   let rec deletelist p l=match l with 
   |[]->[]
   |r::q->if r=p then q else r::(deletelist p q)
-
-  let gettreepoints t=let rec auxtreepoints t l=match t with
-  |Noeud(b,c,tl)->auxtreepointsbis tl (uniq (c::l)) 
-  and auxtreepointsbis tl l=match tl with 
-  |[]->l
-  |p::q->uniq ((auxtreepoints p l)@(auxtreepointsbis q l)) in auxtreepoints t []
   
-  (*retourne la base de l'arbre, ie les points avec un bool=true*)
-  let getbase t=let rec auxbase t l=match t with
-  |Noeud(b,c,tl)->if(b=true) then auxbaseb tl (c::l) else auxbaseb tl l
-  and auxbaseb tl l=match tl with
-  |[]->uniq l
-  |p::q->auxbaseb q (auxbase p l) in auxbase t [] 
-  let getbranches t=let rec auxbranches t l=match t with
-  |Noeud(b,c,tl)->uniq(auxbranchesb c tl l) 
-  and auxbranchesb c tl l=match tl with
-  |[]->l
-  |p::q->match p with |Noeud(a,d,ts)->uniq (auxbranches p ((c,d)::l))@(auxbranchesb c q ((c,d)::l)) in auxbranches t []
+  
   (*retourne la longueur de la liste*)
   let lengthlist l=let rec aux l acc=match l with 
   |[]->acc
@@ -182,7 +166,7 @@ Printf.printf "\n erreur itération %i:" n; dump_coord coord1; dump_coord coord2
   in candidate (graphe_complet t) n true *)
 
 
-
+ 
   let generatecandidate t n=  let _ = Printf.printf "début" in let p = getbase t in let cl = getpoints t in
     let rec candidate t c n = let _ = test c n in let _ = Printf.printf "%i" n in
       if n = 0 then t
@@ -228,12 +212,7 @@ let abs x =if x>0.0 then x else (-.x)
     and auxrelaisb tl l=match tl with
     |[]->uniq l
     |p::q->auxrelaisb q (auxrelais p l) in auxrelais t [] 
-    (**renvoie la liste des points de l'arbre*)
-    let gettreepoints t=let rec auxtreepoints t l=match t with
-    |Noeud(b,c,tl)->auxtreepointsbis tl (uniq (c::l)) 
-    and auxtreepointsbis tl l=match tl with 
-    |[]->l
-    |p::q->uniq ((auxtreepoints p l)@(auxtreepointsbis q l)) in auxtreepoints t []
+
 
    (**Relie le point p au noeud x de l'arbre t*)
    let rec putpoint x t p=match t with 
@@ -287,13 +266,6 @@ let abs x =if x>0.0 then x else (-.x)
   (**retourne true si le point p est dans le triangle v1v2v3*)
   let isintriangle p v1 v2 v3=let res1,res2,res3=(sign p v1 v2),(sign p v2 v3),(sign p v3 v1) in
   not((res1<0.||res2<0.||res3<0.)&&(res1>0.||res2>0.||res3>0.))
-
-  (*retourne la base de l'arbre, ie les points avec un bool=true*)
-  let getbase t=let rec auxbase t l=match t with
-  |Noeud(b,c,tl)->if(b) then auxbaseb tl (c::l) else auxbaseb tl l
-  and auxbaseb tl l=match tl with
-  |[]->uniq l
-  |p::q->auxbaseb q (auxbase p l) in auxbase t [] 
   
   (**retourne une liste de 3 points parmi ceux de l'arbre*)
   let gettriangle t=let rec auxtriangle n r l=if n>0 then let p=getrandom l in auxtriangle (n-1) (p::r) (deletelist p l) 
@@ -329,7 +301,7 @@ let abs x =if x>0.0 then x else (-.x)
   let genpoint tri =let max,min=getmax tri,getmin tri in let rec auxgenpoint p1 p2 p3= let randpoint max min=
   let p=(Random.float (fst (max)-.fst (min))+.fst min,Random.float(snd(max)-.snd(min))+.snd(min)) in if (isintriangle p p1 p2 p3) then p 
   else auxgenpoint p1 p2 p3 in randpoint max min in auxgenpoint (fst(pop tri)) (fst(pop (snd(pop tri)))) (fst(pop(snd(pop(snd(pop tri))))))
-
+ 
   (**ajoute un point généré aléatoirement dans le triangle formé par 3 points choisi aléatoirement parmi ceux de t
   puis supprime les arètes entre ces 3 points et les relie à p*)
   let addtotree_e t=if(lengthlist (gettreepoints t))<3 then failwith"moins de 3 points" 

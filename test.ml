@@ -45,5 +45,5 @@ open Foncteur open Projet open Projet.Tree_R
 let t = create_tree [(0,0);(1,1);(2,2);(3,3)]
 let g = graphe_complet t;;
 let _ = test g 0;;
-let t1 = add_n_edge t (getpoints t) 1 (getbase t)
+let t1 = get_racine t (0,0)
 let _ = print_tree t1
