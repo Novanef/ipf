@@ -3,6 +3,8 @@ sig
   type dot
   val zero : dot
   val (++) : dot -> dot -> dot
+  val (--) : dot -> dot -> dot
+  val d_abs : dot->dot
   val distance : dot*dot -> dot*dot -> dot
   val dump_coord : dot*dot -> unit
 end
@@ -15,6 +17,9 @@ struct
   let zero = 0
 
   let (++) d1 d2 = d1 + d2
+  let (--) d1 d2 = d1 - d2
+
+  let d_abs d = abs d
 
   (**retourne la distance de Manhattan entre c1 et c2*)
   let distance c1 c2 = match c1 with
@@ -34,6 +39,8 @@ type coord = dot * dot
 let zero = 0.0
 
 let (++) d1 d2 = d1 +. d2
+let (--) d1 d2 = d1 -. d2
+let d_abs d = abs_float d
 let distance coord1 coord2 = 1.0 (**TODO *)
 
 let dump_coord c = match c with
