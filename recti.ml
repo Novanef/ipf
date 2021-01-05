@@ -13,11 +13,10 @@ let read_coords =
 
 module Tree_R = FoncteurTree(Coord_R)
 open Tree_R
-let t =
-    let l =  Scanf.scanf "%d\n" read_coords in
-    create_tree l
-let k=generatecandidate t 100
+
+let l =  Scanf.scanf "%d\n" read_coords
+let branches = rectilinear l
 let _=draw_rectilinear 
 (800,600) 
-(gettreepoints k)
-(getbranches k)
+(l)
+(branches)
