@@ -344,7 +344,7 @@ open Display
     
     
       (**change la position d'un point relais aléatoire*)
-      let movepoint t=let rec auxmove t p=match t with
+      let movepoint t=let rec auxmove s p=match s with
       |Noeud(b,c,tl)->if c=p then Noeud(b,genpoint (gettriangle t),tl) else Noeud(b,c,auxbmove tl p)
       and auxbmove tl p=match tl with
       |[]->[]
@@ -359,12 +359,15 @@ open Display
       let rec merge p l=match p with 
       |Noeud(b,c,tl)->Noeud(b,c,mergelists l tl)
     
+      (**retourne les coordonnées du noeud courant*)
+      let getcurrcoord t=match t with 
+      |Noeud(b,c,tl)->c
       (**tire un point relais au hasard et donne ses arêtes à un point aléatoire auquel il est relié*)
-      let mergepoint t=let rec auxmerge t p= match t with 
-      |Noeud(b,c,tl)->if c=p then let pt=subtree (getrandom (getbranchcoord t)) t in (merge pt (deletelist pt tl)) else Noeud(b,c,auxbmerge tl p)
-      and auxbmerge tl p=match tl with
+      let mergepoint t=let rec auxmerge prec s p= match s with 
+      |Noeud(b,c,tl)->if c=p then if tl=[] then (subtree prec t) else let pt=subtree (getrandom (getbranchcoord s)) s in (merge pt (deletelist pt tl)) else Noeud(b,c,auxbmerge c tl p)
+      and auxbmerge prec tl p=match tl with
       |[]->[]
-      |r::q->(auxmerge r p)::(auxbmerge q p)  in auxmerge t (getrandom (getrelais t))
+      |r::q->(auxmerge prec r p)::(auxbmerge prec q p)  in auxmerge (getcurrcoord t) t (getrandom (getrelais t))
     
       (**renvoie une liste contenant un seul arbre différente de coordonnées du point p*)
       let replace p tl t=match tl with 
@@ -385,14 +388,14 @@ open Display
       |[]->[]
       |r::q->(auxnew r p)::(auxbnew q p)  in auxnew t (getrandom (getbase1 t))
     
-      let randomchange t=let r=if (lengthlist (getrelais t)=0) then 0 else Random.int 4 in match r with
+      let randomchange t=let r=if (lengthlist (getrelais t)=0) then 0 else Random.int 4 in let _=Printf.printf "%d" r in match r with
       |0->addtotree_e t
       |1->if (lengthlist (getrelais t)>0) then mergepoint t else t
       |2->if (lengthlist (getrelais t)>0) then movepoint t else t
       |3-> if (lengthlist (getbase1 t)>0) then newbranch t else t
       |_->failwith"impossible"
       
-      let rec generatecandidat_e t n=if n=0 then t else let g=randomchange t in let p=getbase t in 
+      let generatecandidate_e t n=let p=getbase t in if (lengthlist p)<3 then t else let rec generatecandidat_e t n=if n=0 then t else let g=randomchange t in 
       if n>0 then
         if (is_connexe g p) then 
           if (findcycle g) then 
@@ -402,4 +405,4 @@ open Display
               generatecandidat_e g (n-1)
             else generatecandidat_e t (n-1)
         else generatecandidat_e t n
-      else t
+      else t in generatecandidat_e t n
