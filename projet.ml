@@ -352,7 +352,7 @@ open Display
     
       (**retourne le noeud p de contenu dans les arêtes de t et fusionne les arêtes de p avec la liste l*)
       let rec merge p l=match p with 
-      |Noeud(b,c,tl)->Noeud(b,c,l@tl)
+      |Noeud(b,c,tl)->Noeud(b,c,mergelists l tl)
     
       (**tire un point relais au hasard et donne ses arêtes à un point aléatoire auquel il est relié*)
       let mergepoint t=let rec auxmerge t p= match t with 

@@ -41,7 +41,9 @@ let zero = 0.0
 let (++) d1 d2 = d1 +. d2
 let (--) d1 d2 = d1 -. d2
 let d_abs d = abs_float d
-let distance coord1 coord2 = 1.0 (**TODO *)
+let distance c1 c2 = match c1 with
+|(x1,y1) -> match c2 with
+  |(x2,y2) -> ((d_abs (x1--x2)**2.) ++ (d_abs (y1 --y2)**2.))**0.5
 
 let dump_coord c = match c with
 (x,y) ->
