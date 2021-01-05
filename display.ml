@@ -48,7 +48,7 @@ let draw (sx,sy) pts sol grid =
     let args = Printf.sprintf " %dx%d" sx sy in
     let _ = Graphics.open_graph args in
     let _ = draw_pb pts in
-    let _ = if grid then draw_grid sol else () in
+    let _ = if grid && sol != [] then draw_grid sol else () in
     let _ = draw_sol sol in
     let _ = Graphics.wait_next_event [Graphics.Key_pressed] in
     Graphics.close_graph ()

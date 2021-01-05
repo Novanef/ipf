@@ -88,7 +88,7 @@ Printf.printf "\n erreur itération %i:%!" n; dump_coord coord1; dump_coord coor
     Noeud(b,c,tl)-> if isin c cl then Noeud(true,c,tl)::(change_bool_tree_list_nosubtree q cl) else  Noeud(false,c,tl)::(change_bool_tree_list_nosubtree q cl)
 
   let rec voisins_dispo t cl = match t with
-    Noeud(b,c,tl)-> let v = voisins c cl cl in
+    Noeud(b,c,tl)-> let v = voisins c cl cl  in 
     let tl_c = getcoord_treelist_nosubtree tl in
     let v_c = getcoord_treelist_nosubtree v in
     let rec remove_l1_from_l2 l1 l2 = match l2 with
@@ -97,8 +97,8 @@ Printf.printf "\n erreur itération %i:%!" n; dump_coord coord1; dump_coord coor
     in remove_l1_from_l2 tl_c v_c
   
   (** essaye d'ajouter une arête à t s'il n'est pas relié à un de ses voisins qui n'est pas r. renvoie t,true si t a une arrête en plus, t,false sinon *)
-  let rec try_add_edge t r cl base = match t with Noeud(_,c,_) -> let _ = Printf.printf "  debut try_add_edge "; dump_coord c; Printf.printf "\n%!" in let v = voisins_dispo t cl in match r with
-  Noeud(_,c_r,_) -> let v = deletelist c_r v in
+  let rec try_add_edge t r cl base = match t with Noeud(_,c,_) ->  let v = voisins_dispo t cl in match r with
+  Noeud(_,c_r,_) -> let v = deletelist c_r v in let v =deletelist c v in 
   if v =[] then t,false else
   let c_nt = getrandom v in match t with
   Noeud(b,c,tl) -> Noeud(b,c,Noeud(isin c_nt base,c_nt,[])::tl),true
@@ -120,16 +120,16 @@ Printf.printf "\n erreur itération %i:%!" n; dump_coord coord1; dump_coord coor
     |t::q-> if isin c_st (getcoordinates t) then get_racine t c_st else get_racine_list q c_st
 
   (**ajoute au sous-arbre de t dont les coordonnées sont coord une arrête si c'est possible *)
-  let rec add_edge t big_r coord cl base = let _ = Printf.printf "  debut add_edge \n%!" in match t with
-  Noeud(b,c,tl) -> if c = coord then let _ = Printf.printf "  fin add_edge (presque)\n%!" in try_add_edge t (get_racine big_r c) cl base else let res = add_edge_list tl big_r coord cl base in
+  let rec add_edge t big_r coord cl base = match t with
+  Noeud(b,c,tl) -> if c = coord then try_add_edge t (get_racine big_r c) cl base else let res = add_edge_list tl big_r coord cl base in
   Noeud(b,c,fst res), snd res
   and add_edge_list tl big_r coord cl base = match tl with
-  []->let _ = Printf.printf " fin add_edge \n%!" in [],false
+  []->[],false
   |t::q -> let res = add_edge t big_r coord cl base in if snd res then (fst res)::q,true else let res = add_edge_list q big_r coord cl base
   in t::(fst res),snd res
 
-  let rec add_random_edge t cl base= let _ = Printf.printf " debut add_random_edge\n%!" in let cl = getpoints t in let coord = getrandom cl in let try1 = add_edge t t coord cl base
-  in if snd try1 then let _ = Printf.printf " fin add_random_edge\n%!" in fst try1 else add_random_edge t cl base
+  let rec add_random_edge t cl base =  let coord = getrandom cl in let try1 = add_edge t t coord cl base
+  in if snd try1 then fst try1 else add_random_edge t cl base
 
   (* *ajoute une arête dans l'arbre t dans le contexte de cl si c'est possible sans dédoubler d'arête
   let add_edge t cl base= 
@@ -155,8 +155,8 @@ Printf.printf "\n erreur itération %i:%!" n; dump_coord coord1; dump_coord coor
      []->[]
      |t::q-> let rand = Random.int 3 in if rand = 1 then (add_random_edge t cl base)::q else t::(add_random_edge_list q cl base)  *)
 
-  let rec add_n_edge t cl n base= let _ = Printf.printf " debut add_n_edge %i \n%!" n in match n with
-  0-> let _ = Printf.printf "fin add_n_edge\n%!" in t
+  let rec add_n_edge t cl n base=  match n with
+  0-> t
   |_-> add_n_edge (add_random_edge t cl base) cl (n-1) base
 
   (*itération n fois pour trouver un candidat avec un meilleur poids que l'arbre initial*)
@@ -183,20 +183,20 @@ Printf.printf "\n erreur itération %i:%!" n; dump_coord coord1; dump_coord coor
   in candidate (graphe_complet t) n true *)
 open Display
 
-  let generatecandidate t n m=  let _ = Printf.printf "début%!" in let p = getbase t in let cl = getpoints t in
-    let rec candidate t c n m p cl=  let _ = Printf.printf "\niter %i : \n%!" m in
+  let generatecandidate t n m=   let p = getbase t in let cl = getpoints t in
+    let rec candidate t c n m p cl=  
       if n <= 0   then t
       else 
-        if (is_connexe c p) then let _ = Printf.printf "  connexe \n%!" in
-          if (findcycle c) then let _ = Printf.printf " cycle trouvé \n%!" in 
+        if (is_connexe c p) then 
+          if (findcycle c) then
             candidate t (generatetree c) n (m+1) p cl
-          else let _ = Printf.printf (" pas de cycle, on avance\n") in 
+          else 
             let c2 = del_useless_branches c in
             if weight c2 <= weight t then
               candidate c2 (add_n_edge c2 cl 3 p) (n-1) (m+1) p cl
             else
               candidate t (add_n_edge t cl 3 p) (n-1) (m+1) p cl
-        else let _ = Printf.printf "  pas connexe\n%!" in 
+        else 
           candidate t (add_n_edge c cl 1 p ) n (m+1) p cl
 
         (* if (findcycle c) then
