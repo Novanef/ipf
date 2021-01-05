@@ -291,12 +291,12 @@ let abs x =if x>0.0 then x else (-.x)
   |[]->failwith"liste vide"
   |p::q->p,q
 
-  (**retourne une liste d'arètes entre le noeud t sans les noeuds compris dans l*)
+  (**retourne la liste d'arètes du noeud t sans les noeuds compris dans l*)
   let checkbranches t l=match t with 
   |Noeud(b,c,tl)->let rec auxcheck tl l=match tl with 
   |[]->[]
   |p::q -> match p with 
-  |Noeud(a,d,tll)->if not(mem l d) then auxcheck q l else (Noeud(a,d,tll))::(auxcheck q l) in Noeud(b,c,auxcheck tl l )
+  |Noeud(a,d,tll)->if not(mem l d) then auxcheck q l else (Noeud(a,d,tll))::(auxcheck q l) in auxcheck tl l 
   
   (**retourne le sous arbre de coordonnées p*)
   let subtree p t=let rec getsubtree p t l=match t with 
@@ -318,12 +318,29 @@ let abs x =if x>0.0 then x else (-.x)
   let p=(Random.float (fst (max)-.fst (min))+.fst min,Random.float(snd(max)-.snd(min))+.snd(min)) in if (isintriangle p p1 p2 p3) then p 
   else auxgenpoint p1 p2 p3 in randpoint max min in auxgenpoint (fst(pop tri)) (fst(pop (snd(pop tri)))) (fst(pop(snd(pop(snd(pop tri))))))
  
+  (**retourne la liste des sous arbres de t de coordonnées contenues dans l*)
+  let subtreelist t l=let rec auxsub t l k=match l with
+  |[]->k
+  |p::q-> auxsub t q ((subtree p t)::k) in auxsub t l [] 
+   
+  (**retourne une liste de sous arbres qui ne sont pas directement reliés entre eux*)
+  let rec checktriangle tl l=match tl with 
+  |[]->[]
+  |p::q->match p with
+  Noeud(b,c,tll)-> (Noeud(b,c, (checkbranches p l) ))::(checktriangle q l)
+
+  let addtree t p l=Noeud(false,p,checktriangle (subtreelist t l) l)  
+
   (**ajoute un point généré aléatoirement dans le triangle formé par 3 points choisi aléatoirement parmi ceux de t
   puis supprime les arètes entre ces 3 points et les relie à p*)
   let addtotree_e t=if(lengthlist (gettreepoints t))<3 then failwith"moins de 3 points" 
-  else let l=(gettriangle t) in let p=genpoint l in let rec addpoint p l k=match l with
-  |[]->Noeud(false,p,k)
-  |r::q->addpoint p q ((checkbranches (subtree r t) l)::k) in addpoint p l []
+  else let l=(gettriangle t) in let pt=genpoint l in let rec auxadd t p l=match p with
+  |Noeud(b,c,tl)->if not(mem l c) then addtree t pt l,true else Noeud(b,c,auxbadd tl l),false
+  and auxbadd tl l=match tl with 
+  |[]->[]
+  |p::q->if snd(auxadd t p l) then fst(auxadd t p l)::q else p::(auxbadd q l) in fst(auxadd t t l)
+
+
 
   (**change la position d'un point relais aléatoire*)
   let movepoint t=let rec auxmove t p=match t with
@@ -372,3 +389,22 @@ let abs x =if x>0.0 then x else (-.x)
   and auxbnew tl p=match tl with
   |[]->[]
   |r::q->(auxnew r p)::(auxbnew q p)  in auxnew t (getrandom (getbase1 t))
+
+  let randomchange t=let r=if (lengthlist (getrelais t)=0) then 0 else Random.int 4 in match r with
+  |0->addtotree_e t
+  |1->if (lengthlist (getrelais t)>0) then mergepoint t else t
+  |2->if (lengthlist (getrelais t)>0) then movepoint t else t
+  |3-> if (lengthlist (getbase1 t)>0) then newbranch t else t
+  |_->failwith"impossible"
+  
+  let rec generatecandidat_e t n=if n=0 then t else let g=randomchange t in let p=getbase t in 
+  if n>0 then
+    if (is_connexe g p) then 
+      if (findcycle g) then 
+        generatecandidat_e g n
+      else 
+        if(weight t)>=(weight g) then 
+          generatecandidat_e g (n-1)
+        else generatecandidat_e t (n-1)
+    else generatecandidat_e t n
+  else t
