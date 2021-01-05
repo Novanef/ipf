@@ -6,5 +6,6 @@ all:
 	ocamlc -g -a test.ml -o test.cma
 	ocamlc -g display.cma foncteur.cma projet.cma test.ml -o test.exe
 	ocamlc -g display.cma foncteur.cma projet.cma recti.ml -o recti.exe
+	ocamlc -g display.cma foncteur.cma projet.cma eucli.ml -o eucli.exe
 clean:
 	rm -rf *.cma *.cmo test.exe

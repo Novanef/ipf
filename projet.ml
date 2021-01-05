@@ -335,7 +335,7 @@ open Display
       (**ajoute un point généré aléatoirement dans le triangle formé par 3 points choisi aléatoirement parmi ceux de t
       puis supprime les arètes entre ces 3 points et les relie à p*)
       let addtotree_e t=if(lengthlist (gettreepoints t))<3 then failwith"moins de 3 points" 
-      else let l=(gettriangle t) in let pt=genpoint l in let rec auxadd t p l=match p with
+      else let l=(gettriangle t) in if (lengthlist l)<3 then failwith"??" else let pt=genpoint l in let rec auxadd t p l=match p with
       |Noeud(b,c,tl)->if not(mem l c) then addtree t pt l,true else Noeud(b,c,auxbadd tl l),false
       and auxbadd tl l=match tl with 
       |[]->[]
@@ -345,7 +345,7 @@ open Display
     
       (**change la position d'un point relais aléatoire*)
       let movepoint t=let rec auxmove t p=match t with
-      |Noeud(b,c,tl)->if c=p then Noeud(b,genpoint (getbranchcoord t),tl) else Noeud(b,c,auxbmove tl p)
+      |Noeud(b,c,tl)->if c=p then Noeud(b,genpoint (gettriangle t),tl) else Noeud(b,c,auxbmove tl p)
       and auxbmove tl p=match tl with
       |[]->[]
       |r::q->(auxmove r p)::(auxbmove q p)  in auxmove t (getrandom (getrelais t))
