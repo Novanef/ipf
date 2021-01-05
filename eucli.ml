@@ -13,11 +13,11 @@ let read_coords =
 
 module Tree_E = FoncteurTree(Coord_E)
 open Tree_E
-let t =
-    let l =  Scanf.scanf "%d\n" read_coords in
-    create_tree_e l
+
+let l =  Scanf.scanf "%d\n" read_coords
+let t =    create_tree_e (float_coord_list l)
 let k=generatecandidat_e t 100
 let _=draw_eulcidean
 (800,600) 
-(getbase k)
+(l)
 (getbranches k)

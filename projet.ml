@@ -240,7 +240,11 @@ open Display
       |[]->failwith"liste vide2"
       |p::q->if x=0 then p else auxrand q (x-1) 
       in auxrand l (Random.int (lengthlist l)) else failwith"liste vide3"
-    
+
+      let rec float_coord_list l = match l with
+      []->[]
+      |t::q -> match t with (x,y) -> (float_of_int x,float_of_int y)::(float_coord_list q)
+      
        (**relie les points de la liste p entre eux  (la liste l contient les points faisant parti de l'arbre pour les relier aux nouveaux points)*)
        let create_tree_e p=let rec auxcreatetree p t l=
        if not(p=[]) then let c=getrandom p in if l=[] then auxcreatetree (deletelist c p) (Noeud(true,c,[])) (c::l) 
