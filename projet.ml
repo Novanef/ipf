@@ -206,8 +206,8 @@ open Display
             candidate t (add_n_edge c cl 1 p) n *)
     in candidate (graphe_complet t) (graphe_complet t) n 1 p cl
 
-    let rectilinear base = let t = generatecandidate (create_tree base) 1 in
-    getbranches t
+  let rectilinear base = let t = generatecandidate (create_tree base) 1 in
+  getbranches t
 
    (*Euclidien*)
    (**Relie le point p au noeud x de l'arbre t*)
