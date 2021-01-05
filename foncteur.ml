@@ -186,17 +186,24 @@ struct
   []->[]
   |t::q -> (change_bool t cl)::(change_bool_list q cl)
 
+    (*supprime le membre égal à p de la liste*)
+  let rec deletelist p l=match l with 
+  |[]->[]
+  |r::q->if r=p then q else r::(deletelist p q)
+
   (** renvoie un graphe contenant tous les points de cl, chacun reliés à leur plus proche voisin vertical et horizontal*)
-  let graphe_complet_sans_bool cl = match cl with
-    []->failwith"listevide"
-    |t::q -> Noeud(false,t,voisins t q cl)
+  let graphe_complet_sans_bool cl coord= 
+  match coord with
+  []->failwith"pas de point de base"
+  |t::q-> let cl_nt = deletelist t cl in
+  Noeud(false,t,voisins t cl_nt cl)
 
   (** renvoie un graphe complété à partir de t, ie un graphe avec tous les points supplémentaires utiles selon la distance de Manhattan
   et dont tous les sous-arbres sont reliés à leur plus proches voisins vertical et horizontal *)
   let graphe_complet t = 
     let points = getpoints t in 
       let coord = getcoordinates t in 
-        change_bool (graphe_complet_sans_bool points) coord
+        change_bool (graphe_complet_sans_bool points coord) coord
 
   
   (**renvoie true si st est un sous-arbre de t (au sens large)*)

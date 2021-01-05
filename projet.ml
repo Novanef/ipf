@@ -18,11 +18,6 @@ let testos = check_error c in
 match testos with 
 (b,coord1,coord2) ->if b then let _ =
 Printf.printf "\n erreur itération %i:%!" n; dump_coord coord1; dump_coord coord2; Printf.printf "\n%!" in ()
-
-  (*supprime le membre égal à p de la liste*)
-  let rec deletelist p l=match l with 
-  |[]->[]
-  |r::q->if r=p then q else r::(deletelist p q)
   
   
   (*retourne la longueur de la liste*)
@@ -96,13 +91,13 @@ Printf.printf "\n erreur itération %i:%!" n; dump_coord coord1; dump_coord coor
     |t::q-> if isin t l1 then remove_l1_from_l2 l1 q else t::(remove_l1_from_l2 l1 q)
     in remove_l1_from_l2 tl_c v_c
   
-  (** essaye d'ajouter une arête à t s'il n'est pas relié à un de ses voisins qui n'est pas r. renvoie t,true si t a une arrête en plus, t,false sinon *)
+  (** essaye d'ajouter une arête à t s'il n'est pas relié à un de ses voisins qui n'est pas r. renvoie t,true si t a une arête en plus, t,false sinon *)
   let rec try_add_edge t r cl base = match t with Noeud(_,c,_) ->  let v = voisins_dispo t cl in match r with
   Noeud(_,c_r,_) -> let v = deletelist c_r v in let v =deletelist c v in 
   if v =[] then t,false else
   let c_nt = getrandom v in match t with
   Noeud(b,c,tl) -> Noeud(b,c,Noeud(isin c_nt base,c_nt,[])::tl),true
-
+ 
   (* let try_add_edge t r cl base= let rec aux t r v = match r with
     Noeud(_,c_r,_) -> match t with
     Noeud(b,c,tl) -> match v with
@@ -119,7 +114,7 @@ Printf.printf "\n erreur itération %i:%!" n; dump_coord coord1; dump_coord coor
     []->failwith"pas trouvé"
     |t::q-> if isin c_st (getcoordinates t) then get_racine t c_st else get_racine_list q c_st
 
-  (**ajoute au sous-arbre de t dont les coordonnées sont coord une arrête si c'est possible *)
+  (**ajoute au sous-arbre de t dont les coordonnées sont coord une arête si c'est possible *)
   let rec add_edge t big_r coord cl base = match t with
   Noeud(b,c,tl) -> if c = coord then try_add_edge t (get_racine big_r c) cl base else let res = add_edge_list tl big_r coord cl base in
   Noeud(b,c,fst res), snd res
@@ -128,7 +123,7 @@ Printf.printf "\n erreur itération %i:%!" n; dump_coord coord1; dump_coord coor
   |t::q -> let res = add_edge t big_r coord cl base in if snd res then (fst res)::q,true else let res = add_edge_list q big_r coord cl base
   in t::(fst res),snd res
 
-  let rec add_random_edge t cl base =  let coord = getrandom cl in let try1 = add_edge t t coord cl base
+  let rec add_random_edge t cl base =  let t_cl = getcoordinates t in let coord = getrandom t_cl in let try1 = add_edge t t coord cl base
   in if snd try1 then fst try1 else add_random_edge t cl base
 
   (* *ajoute une arête dans l'arbre t dans le contexte de cl si c'est possible sans dédoubler d'arête
@@ -183,7 +178,7 @@ Printf.printf "\n erreur itération %i:%!" n; dump_coord coord1; dump_coord coor
   in candidate (graphe_complet t) n true *)
 open Display
 
-  let generatecandidate t n m=   let p = getbase t in let cl = getpoints t in
+  let generatecandidate t n =   let p = getbase t in let cl = getpoints t in
     let rec candidate t c n m p cl=  
       if n <= 0   then t
       else 

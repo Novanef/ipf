@@ -16,7 +16,7 @@ open Tree_R
 let t =
     let l =  Scanf.scanf "%d\n" read_coords in
     create_tree l
-let k=generatecandidate t 3 10
+let k=generatecandidate t 100
 let _=draw_rectilinear 
 (800,600) 
 (gettreepoints k)
