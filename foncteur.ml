@@ -127,6 +127,7 @@ struct
 
   let getcoord_treelist tl = let t = Noeud(false,(zero,zero),tl) in let l = getcoordinates t in remove_last l
 
+  (**renvoie les coord de tous les arbres de la liste tl *)
   let rec getcoord_treelist_nosubtree tl = match tl with
   []->[]
   |t::q-> match t with
@@ -209,14 +210,14 @@ struct
 
   
 
-  let findcycle t = let rec aux t v = let coord_v = getcoord_treelist_nosubtree v in match t with
+  let findcycle t = let _ = Printf.printf " debut findcycle\n%!" in let rec aux t v = let coord_v = getcoord_treelist_nosubtree v in match t with
   Noeud(_,c,tl) -> 
   (* let _ = Printf.printf "courant noeud : "; dump_coord c ; Printf.printf" | v : "; dump_coord_tree_list v;if tl = [] then Printf.printf "nsa\n%!" else Printf.printf "\n%!"; in *)
-  if (isin c coord_v) then 
+  if (isin c coord_v) then  
   (* let _ = Printf.printf"Fin : "; dump_coord c; Printf.printf "est dans v = "; dump coord_v in  *)
   true,(t::v) else aux_list tl (t::v)
   and aux_list tl v = match tl with
-  []->false,v
+  []->let _ = Printf.printf " fin findycle\n%!" in false,v
   |t::q -> let result = aux t v in let result2 = aux_list q (snd result) in ( fst result || fst (result2 ) ), (snd result2)
   in fst(aux t [])
 
@@ -256,5 +257,10 @@ and print_tree_list tl = match tl with
     and auxtreepointsbis tl l=match tl with 
     |[]->l
     |p::q->uniq ((auxtreepoints p l)@(auxtreepointsbis q l)) in auxtreepoints t []
+  
+    let is_connexe t base = let _ = Printf.printf " debut is_con\n%!" in let tl = getcoordinates t in let rec aux l1 l2 = match l1 with
+  []-> let _ = Printf.printf "  fin is_con \n%!" in []
+  |t::q-> if isin t l2 then aux q l2 else t::(aux q l2)
+  in (aux base tl) = []
 end
 
