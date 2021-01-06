@@ -251,7 +251,7 @@ struct
   |t::q->Noeud(true,t,[create_tree q])
 
   let rec print_tree t = match t with
-Noeud(b,c,tl)->Printf.printf "Noeud(%b,(" b ;dump_coord c; Printf.printf ",[" ; print_tree_list tl;Printf.printf "])"
+Noeud(b,c,tl)->Printf.printf "Noeud(%b," b ;dump_coord c; Printf.printf ",[" ; print_tree_list tl;Printf.printf "])"
 and print_tree_list tl = match tl with
 []->Printf.printf ""
 |t::q-> Printf.printf ""; print_tree t;if q != [] then Printf.printf ";" else (); print_tree_list q; Printf.printf "\n"

@@ -380,10 +380,10 @@ open Display
       
       let get_p_r t p_b = match t with
       Noeud(b,c,tl) -> if c = p_b then match tl with 
-      st::[] -> begin match st with Noeud(_,c_st,_) -> getrandom (deletelist c_st (getcoordinates t) ) end
+      st::[] -> begin match st with Noeud(_,c_st,_) -> getrandom (deletelist c_st (getcoordinates st) ) end
       |_->failwith"mauvais arbre ou mauvais point de base"
       else
-      getrandom (deletelist (get_pretree t p_b) (getcoordinates t) )
+      getrandom  (deletelist p_b (deletelist (get_pretree t p_b) (getcoordinates t) ))
       
       let add_p_b_to_p_r t p_b p_r = 
       let rec aux t p_b p_r = match t with
@@ -392,7 +392,7 @@ open Display
       and aux_list tl p_b p_r = match tl with
       []->[],false
       |t::q-> let try1 = aux t p_b p_r in if snd try1 then (fst try1::q),true else aux_list q p_b p_r
-      in let try1 = aux t p_b p_r in if snd try1 then fst try1 else failwith"p_r introuvable dans t"
+      in let _ = Printf.printf "p_r :";dump_coord p_r;Printf.printf "\n%!" in let try1 = aux t p_b p_r in if snd try1 then fst try1 else failwith"p_r introuvable dans t"
       
       let del_p_b t p_b = 
       let rec aux_list tl p_b = match tl with
@@ -407,25 +407,24 @@ open Display
         Noeud(b,c,tl) -> Noeud(b,c,aux_list tl p_b)
       in aux t p_b
       
-      let change_edge t p_b = let p_r = get_p_r t p_b in match t with
+      let change_edge t p_b = let _ = Printf.printf "change_edge :\n%!"; print_tree t;Printf.printf "p_b : "; dump_coord p_b; Printf.printf "\n%!" in let p_r = get_p_r t p_b in match t with
       Noeud(_,c,tl) -> if c = p_b then match tl with
-      st::[] -> add_p_b_to_p_r st p_b p_r
+      st::[] -> let _ = Printf.printf "p_b est la racine\n%!" in add_p_b_to_p_r st p_b p_r
       |_ ->failwith"mauvais arbre"
-      else
+      else let _ =Printf.printf "p_b pas racine\n%!" in
       add_p_b_to_p_r (del_p_b t p_b) p_b p_r
-          (**retourne true si un sous arbre de t autre que celui de coordonnées r est relié à p*)
-          let checksubtree t p r=let rec checkaux t p l=match l with
-          |[]->false
-          |r::q->(checkbaux t r p q)||(checkaux t p q)
-          and checkbaux t s p q=match (subtree s t) with
-          Noeud(b,c,tl)->if isin p tl  then true else checkaux t p q in checkaux t (subtree p t) (deletelist r (gettreepoints t))
 
-      (*retourne la base de l'arbre, ie les points avec un bool=true, qui n'ont qu'une seule arête*)
-      let getbase1 t=let rec auxbase s l prec=match s with
-      |Noeud(b,c,tl)->if((b)&&(lengthlist tl=1))||((b)&&tl=[]&&not(checksubtree t c prec)) then auxbaseb tl (c::l) c else auxbaseb tl l c
-      and auxbaseb tl l prec=match tl with
-      |[]->uniq l
-      |p::q->auxbaseb q (auxbase p l prec) prec in auxbase t [] (getcurrcoord t)
+      let getbase1 t = 
+      let rec aux t = match t with
+      Noeud(b,c,tl) -> if b && (tl = []) then [c] 
+      else aux_list tl
+      and aux_list tl = match tl with
+      []->[]
+      |t::q -> (aux t)@(aux_list q)
+      in
+      match t with
+      Noeud(b,c,tl) -> if b && (lengthlist tl) = 1 then c::(aux t) else aux t
+
       (**recherche un point de départ (bool true) avec une seule arête et la change*)
       let newbranch_e t=let rec auxnew s p=match s with
       |Noeud(b,c,tl)->if c=p then if lengthlist tl=1 then Noeud(b,c,replace p tl t) else Noeud(b,c,tl) else Noeud(b,c,auxbnew tl p)
@@ -452,4 +451,4 @@ open Display
             else generatecandidat_e t c (n-1) (m+1)
           else generatecandidat_e t c (n-1) (m+1)
         else generatecandidat_e t c (n-1) (m+1)
-        in generatecandidat_e (create_tree_e p) (create_tree_e p) n 1
+      in generatecandidat_e (create_tree_e p) (create_tree_e p) n 1
