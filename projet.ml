@@ -364,18 +364,76 @@ open Display
       |r::q->match r with 
       |Noeud(b,c,tll)->let pt=getrandom((deletelist c (deletelist p (gettreepoints t)))) in [subtree pt t]
     
+          (**renvoie le "sur-abre" de p dans t *)
+    let get_pretree t p =
+      let rec aux t p =  match t with
+      Noeud(_,c,tl) -> let c_tl = getcoord_treelist_nosubtree tl in 
+        if isin p c_tl then 
+          c,true 
+        else
+          aux_list tl p
+      and aux_list tl p = match tl with
+      []->(zero,zero),false
+      |t::q -> let try1 = aux t p in if snd try1 then try1 else aux_list q p
+      in let try1 = aux t p in if snd try1 then fst try1 else failwith"le point n'est pas dans l'abre"
+      
+      
+      let get_p_r t p_b = match t with
+      Noeud(b,c,tl) -> if c = p_b then match tl with 
+      st::[] -> begin match st with Noeud(_,c_st,_) -> getrandom (deletelist c_st (getcoordinates t) ) end
+      |_->failwith"mauvais arbre ou mauvais point de base"
+      else
+      getrandom (deletelist (get_pretree t p_b) (getcoordinates t) )
+      
+      let add_p_b_to_p_r t p_b p_r = 
+      let rec aux t p_b p_r = match t with
+      Noeud(b,c,tl) -> if c = p_r then Noeud(b,c,Noeud(true,p_b,[])::tl),true
+      else let res = aux_list tl p_b p_r in Noeud(b,c,fst res),snd res
+      and aux_list tl p_b p_r = match tl with
+      []->[],false
+      |t::q-> let try1 = aux t p_b p_r in if snd try1 then (fst try1::q),true else aux_list q p_b p_r
+      in let try1 = aux t p_b p_r in if snd try1 then fst try1 else failwith"p_r introuvable dans t"
+      
+      let del_p_b t p_b = 
+      let rec aux_list tl p_b = match tl with
+      []->[]
+      |t::q-> let n_t = aux t p_b in 
+        match n_t with 
+        Noeud(b,c,tl_tl) -> 
+          if c = p_b then 
+            aux_list q p_b
+          else t::(aux_list q p_b)
+      and aux t p_b = match t with 
+        Noeud(b,c,tl) -> Noeud(b,c,aux_list tl p_b)
+      in aux t p_b
+      
+      let change_edge t p_b = let p_r = get_p_r t p_b in match t with
+      Noeud(_,c,tl) -> if c = p_b then match tl with
+      st::[] -> add_p_b_to_p_r st p_b p_r
+      |_ ->failwith"mauvais arbre"
+      else
+      add_p_b_to_p_r (del_p_b t p_b) p_b p_r
+          (**retourne true si un sous arbre de t autre que celui de coordonnées r est relié à p*)
+          let checksubtree t p r=let rec checkaux t p l=match l with
+          |[]->false
+          |r::q->(checkbaux t r p q)||(checkaux t p q)
+          and checkbaux t s p q=match (subtree s t) with
+          Noeud(b,c,tl)->if isin p tl  then true else checkaux t p q in checkaux t (subtree p t) (deletelist r (gettreepoints t))
+
       (*retourne la base de l'arbre, ie les points avec un bool=true, qui n'ont qu'une seule arête*)
-      let getbase1 t=let rec auxbase t l=match t with
-      |Noeud(b,c,tl)->if(b)&&(lengthlist tl=1) then auxbaseb tl (c::l) else auxbaseb tl l
-      and auxbaseb tl l=match tl with
+      let getbase1 t=let rec auxbase s l prec=match s with
+      |Noeud(b,c,tl)->if((b)&&(lengthlist tl=1))||((b)&&tl=[]&&not(checksubtree t c prec)) then auxbaseb tl (c::l) c else auxbaseb tl l c
+      and auxbaseb tl l prec=match tl with
       |[]->uniq l
-      |p::q->auxbaseb q (auxbase p l) in auxbase t [] 
+      |p::q->auxbaseb q (auxbase p l prec) prec in auxbase t [] (getcurrcoord t)
       (**recherche un point de départ (bool true) avec une seule arête et la change*)
-      let newbranch t=let rec auxnew s p=match s with
+      let newbranch_e t=let rec auxnew s p=match s with
       |Noeud(b,c,tl)->if c=p then if lengthlist tl=1 then Noeud(b,c,replace p tl t) else Noeud(b,c,tl) else Noeud(b,c,auxbnew tl p)
       and auxbnew tl p=match tl with
       |[]->[]
       |r::q->(auxnew r p)::(auxbnew q p)  in auxnew t (getrandom (getbase1 t))
+
+      let newbranch t=change_edge t (getrandom (getbase1 t))
     
       let randomchange t=let r=if (lengthlist (getrelais t)=0) then 0 else Random.int 4 in match r with
       |0->addtotree_e t
@@ -387,11 +445,10 @@ open Display
       let generatecandidate_e t n=let p=getbase t in if (lengthlist p)<3 then t else let rec generatecandidat_e t n=if n=0 then t else let g=randomchange t in 
       if n>0 then
         if (is_connexe g p) then 
-         let c=del_useless_branches g in
-          if (findcycle c) then
-            if(weight t)>=(weight c) then 
-              generatecandidat_e c (n-1)
+          if (findcycle g) then
+            if(weight t)>=(weight g) then 
+              generatecandidat_e g (n-1)
             else generatecandidat_e t (n-1)
-          else generatecandidat_e t n
+          else generatecandidat_e t (n-1)
         else generatecandidat_e t (n-1)
       else t in generatecandidat_e t n
