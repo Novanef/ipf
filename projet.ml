@@ -290,19 +290,19 @@ open Display
       let list_subtree_subsubtree t =
       let rec aux t tl = match tl with
       []->[]
-      |Noeud(b,c,ttl)::q -> let func t x = (t,x) in (List.map (func t) ttl )@(aux t q)
+      |Noeud(b,c,ttl)::q -> let func t x = (t,x) in (List.map (func (Noeud(b,c,ttl))) ttl )@(aux t q)
       in
       match t with
       Noeud(_,_,tl) -> aux t tl
 
 
       (**retourne une liste de 3 points parmi ceux de l'arbre*)
-      let gettriangle t =
-        let rec aux tree_list = let first = getrandom tree_list in
+      let gettriangle t = let _ = Printf.printf "début get_triangle\n%!"; print_tree t; Printf.printf "\n%!" in
+        let rec aux tree_list = let _ = Printf.printf "tree_list :"; dump (getcoord_treelist_nosubtree tree_list); Printf.printf "\n%!" in let first = getrandom tree_list in match first with Noeud(_,f_c,_) -> let _ = Printf.printf "first :"; dump_coord f_c; Printf.printf "\n%!" in
           if (nb_subrees first) > 1 || (nb_subtrees_deep first) > 0 then
-            let l = (list_subtree_subtree first)@(list_subtree_subsubtree first) in
+            let l = (list_subtree_subtree first)@(list_subtree_subsubtree first) in let _ = Printf.printf "liste des suivant : ["; List.iter (fun c -> match c with (Noeud(_,x,_),Noeud(_,y,_))-> Printf.printf "{"; dump_coord x;dump_coord y; Printf.printf "} ; %!") l ; Printf.printf "]\n%!" in
             let rest = getrandom l in match rest with
-              (Noeud(_,c2,_),Noeud(_,c3,_)) -> match first with Noeud(_,c1,_) -> 
+              (Noeud(_,c2,_),Noeud(_,c3,_)) -> match first with Noeud(_,c1,_) -> let _ = Printf.printf "rest :";dump_coord c2;dump_coord c3;Printf.printf "\n%!" in
                 if are_aligned c1 c2 c3 then
                   aux tree_list
                 else [c1;c2;c3]
