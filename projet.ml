@@ -56,17 +56,6 @@ Printf.printf "\n erreur itération %i:%!" n; dump_coord coord1; dump_coord coor
   |p::q->match p with 
   |Noeud(a,d,tlb)->if d!=c then (auxleaf (Noeud(a,d, tlb)))::(auxgen q d) else p::(auxgen q c) in auxleaf t
 
-  let rec is_tree_useful t = match t with
-  |Noeud(b,_,tl) -> if b then true else is_tree_list_useful tl
-  and is_tree_list_useful tl = match tl with
-  []->false
-  |t::q -> (is_tree_useful t) || (is_tree_list_useful q)
-
-  let rec del_useless_branches t = match t with
-  Noeud(b,c,tl) -> if not (is_tree_list_useful tl) then Noeud(b,c,[]) else Noeud(b,c,del_useless_branches_list tl)
-  and del_useless_branches_list tl = match tl with
-  []->[]
-  |t::q-> if not (is_tree_useful t) then del_useless_branches_list q else (del_useless_branches t)::(del_useless_branches_list q) 
 
   (**renvoie les coordonnées des sous-arbres directs de t*)
   let getcoord_subtree_list t = let rec aux tl = match tl with
@@ -388,7 +377,7 @@ open Display
       |[]->[]
       |r::q->(auxnew r p)::(auxbnew q p)  in auxnew t (getrandom (getbase1 t))
     
-      let randomchange t=let r=if (lengthlist (getrelais t)=0) then 0 else Random.int 4 in let _=Printf.printf "%d" r in match r with
+      let randomchange t=let r=if (lengthlist (getrelais t)=0) then 0 else Random.int 4 in match r with
       |0->addtotree_e t
       |1->if (lengthlist (getrelais t)>0) then mergepoint t else t
       |2->if (lengthlist (getrelais t)>0) then movepoint t else t
@@ -398,11 +387,11 @@ open Display
       let generatecandidate_e t n=let p=getbase t in if (lengthlist p)<3 then t else let rec generatecandidat_e t n=if n=0 then t else let g=randomchange t in 
       if n>0 then
         if (is_connexe g p) then 
-          if (findcycle g) then 
-            generatecandidat_e g n
-          else 
-            if(weight t)>=(weight g) then 
-              generatecandidat_e g (n-1)
+         let c=del_useless_branches g in
+          if (findcycle c) then
+            if(weight t)>=(weight c) then 
+              generatecandidat_e c (n-1)
             else generatecandidat_e t (n-1)
-        else generatecandidat_e t n
+          else generatecandidat_e t n
+        else generatecandidat_e t (n-1)
       else t in generatecandidat_e t n

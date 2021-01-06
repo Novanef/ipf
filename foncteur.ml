@@ -278,5 +278,17 @@ and print_tree_list tl = match tl with
   []->  []
   |t::q-> if isin t l2 then aux q l2 else t::(aux q l2)
   in (aux base tl) = []
+  
+  let rec is_tree_useful t = match t with
+  |Noeud(b,_,tl) -> if b then true else is_tree_list_useful tl
+  and is_tree_list_useful tl = match tl with
+  []->false
+  |t::q -> (is_tree_useful t) || (is_tree_list_useful q)
+
+  let rec del_useless_branches t = match t with
+  Noeud(b,c,tl) -> if not (is_tree_list_useful tl) then Noeud(b,c,[]) else Noeud(b,c,del_useless_branches_list tl)
+  and del_useless_branches_list tl = match tl with
+  []->[]
+  |t::q-> if not (is_tree_useful t) then del_useless_branches_list q else (del_useless_branches t)::(del_useless_branches_list q) 
 end
 

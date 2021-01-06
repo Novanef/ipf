@@ -16,7 +16,9 @@ open Tree_E
 
 let l =  Scanf.scanf "%d\n" read_coords
 let t =    create_tree_e (float_coord_list l)
+let _=Printf.printf "%f\n" (weight t)
 let k=generatecandidate_e t 50
+let _=Printf.printf "%f\n" (weight k)
 let _=draw_eulcidean
 (800,600) 
 (l)
