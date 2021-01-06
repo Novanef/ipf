@@ -414,6 +414,7 @@ open Display
       else let _ =Printf.printf "p_b pas racine\n%!" in
       add_p_b_to_p_r (del_p_b t p_b) p_b p_r
 
+      (**renvoie les coordonnées de base qui n'ont pas de sous-arbre ou sont la racine *)
       let getbase1 t = 
       let rec aux t = match t with
       Noeud(b,c,tl) -> if b && (tl = []) then [c] 
