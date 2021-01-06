@@ -16,7 +16,7 @@ open Tree_R
 
 let l =  sort_list (Scanf.scanf "%d\n" read_coords)
 let branches = rectilinear l
-let _=draw_rectilinear 
+let _=draw_rectilinear  
 (800,600) 
 (l)
 (branches)

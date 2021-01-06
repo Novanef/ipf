@@ -4,7 +4,7 @@ sig
   val zero : dot
   val (++) : dot -> dot -> dot
   val (--) : dot -> dot -> dot
-  val ( ** ) : dot -> dot -> dot
+  val ( *** ) : dot -> dot -> dot
   val d_abs : dot->dot
   val distance : dot*dot -> dot*dot -> dot
   val dump_coord : dot*dot -> unit
@@ -19,7 +19,7 @@ struct
 
   let (++) d1 d2 = d1 + d2
   let (--) d1 d2 = d1 - d2
-  let ( ** ) d1 d2 = d1 * d2
+  let ( *** ) d1 d2 = d1 * d2
 
   let d_abs d = abs d
 
@@ -42,7 +42,7 @@ let zero = 0.0
 
 let (++) d1 d2 = d1 +. d2
 let (--) d1 d2 = d1 -. d2
-let ( ** ) d1 d2 = d1 *. d2
+let ( *** ) d1 d2 = d1 *. d2
 let d_abs d = abs_float d
 let distance c1 c2 = match c1 with
 |(x1,y1) -> match c2 with
@@ -65,7 +65,7 @@ struct
 
   let (--) = X.(--)
 
-  let ( ** ) = X.( ** )
+  let ( *** ) = X.( *** )
 
   let zero = X.zero
 
@@ -316,7 +316,7 @@ and print_tree_list tl = match tl with
 
   let are_aligned a b c = match a with 
   (xa,ya) -> match b with (xb,yb) -> match c with (xc,yc) ->
-  ((xa -- xc) ** (ya -- yb)) -- ((ya -- yc) ** (xa -- xb)) = zero
+  ((xa -- xc) *** (ya -- yb)) -- ((ya -- yc) *** (xa -- xb)) = zero
 
   let rec is_list_a_line l = match l with
   []->true

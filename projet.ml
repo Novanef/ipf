@@ -13,13 +13,7 @@ open Tree_R
   []->false,(zero,zero),(zero,zero)
   |t::q-> let test = check_error t in match test with (b,_,_) -> if b then test else check_error_list q
 
-let test c n= 
-let testos = check_error c in 
-match testos with 
-(b,coord1,coord2) ->if b then let _ =
-Printf.printf "\n erreur itération %i:%!" n; dump_coord coord1; dump_coord coord2; Printf.printf "\n%!" in ()
-  
-  
+
   (*retourne la longueur de la liste*)
   let lengthlist l=let rec aux l acc=match l with 
   |[]->acc
@@ -55,6 +49,9 @@ Printf.printf "\n erreur itération %i:%!" n; dump_coord coord1; dump_coord coor
   |[]->[]
   |p::q->match p with 
   |Noeud(a,d,tlb)->if d!=c then (auxleaf (Noeud(a,d, tlb)))::(auxgen q d) else p::(auxgen q c) in auxleaf t
+
+  let rec del_branches t p = 
+  let test = generatetree t in if (is_connexe test p) then test else del_branches t p
 
 
   (**renvoie les coordonnées des sous-arbres directs de t*)
@@ -115,87 +112,30 @@ Printf.printf "\n erreur itération %i:%!" n; dump_coord coord1; dump_coord coor
   let rec add_random_edge t cl base =  let t_cl = getcoordinates t in let coord = getrandom t_cl in let try1 = add_edge t t coord cl base
   in if snd try1 then fst try1 else add_random_edge t cl base
 
-  (* *ajoute une arête dans l'arbre t dans le contexte de cl si c'est possible sans dédoubler d'arête
-  let add_edge t cl base= 
-    let rec aux t r cl = let try1 = try_add_edge t r cl base in 
-      if snd try1 then 
-        fst try1 
-      else 
-        match t with
-          Noeud(b,c,tl) -> Noeud(b,c,aux_list tl t cl)
-    and aux_list tl r cl = match tl with
-      []->[]
-      |t::q-> let try1 = aux t r cl in 
-        if not (try1 = t) then 
-          try1::q 
-        else 
-          t::(aux_list q r cl)
-    in aux t t cl
-
-  let rec add_random_edge t cl base =
-    match t with
-    Noeud(b,c,tl) -> let rand = Random.int 3 in if rand = 1 || tl = [] then add_edge t cl base else Noeud(b,c,add_random_edge_list tl cl base)
-    and add_random_edge_list tl cl base = match tl with
-     []->[]
-     |t::q-> let rand = Random.int 3 in if rand = 1 then (add_random_edge t cl base)::q else t::(add_random_edge_list q cl base)  *)
-
+ 
   let rec add_n_edge t cl n base=  match n with
   0-> t
   |_-> add_n_edge (add_random_edge t cl base) cl (n-1) base
 
-  (*itération n fois pour trouver un candidat avec un meilleur poids que l'arbre initial*)
-  (* let generatecandidate t n = let p = getbase t in 
-    let rec candidate t n bool= let cl = getpoints t in
-      if n > 0 then let _ = Printf.printf "%i%!" n in
-        let c = if bool then generatetree t else generatetree (add_n_edge t cl 2)  in 
-        if (findcycle c) then
-          if is_connexe c p then
-            candidate c n false
-          else
-            candidate t n false
-        else
-          if is_connexe c p then
-            if weight (del_useless_branches c) <= weight t then
-              let _ = Printf.printf "on change d'abre%!" in
-              candidate (del_useless_branches c) (n-1) false
-            else
-              let _ = Printf.printf "on garde le même arbre et pas :\n%!";print_tree (del_useless_branches c); Printf.printf "\n%!" in
-              candidate t (n-1) false
-          else
-            candidate t n false
-      else t 
-  in candidate (graphe_complet t) n true *)
+  
 open Display
 
   let generatecandidate t n =   let p = getbase t in let cl = getpoints t in
     let rec candidate t c n m p cl=  
-      if n <= 0   then t
+      if n <= 0 then t
       else 
-        if (is_connexe c p) then 
           if (findcycle c) then
-            candidate t (generatetree c) n (m+1) p cl
+            candidate t (del_branches c p) n (m+1) p cl
           else 
             let c2 = del_useless_branches c in
             if weight c2 <= weight t then
               candidate c2 (add_n_edge c2 cl 3 p) (n-1) (m+1) p cl
             else
               candidate t (add_n_edge t cl 3 p) (n-1) (m+1) p cl
-        else 
-          candidate t (add_n_edge c cl 1 p ) n (m+1) p cl
 
-        (* if (findcycle c) then
-          candidate t (generatetree c) n
-        else
-          if (is_connexe c p) then let c2 = del_useless_branches c in
-            if weight c2 <= weight t then 
-              candidate c2 (add_n_edge c2 cl 3 p) (n-1)
-            else
-              candidate t (add_n_edge t cl 3 p) (n-1)
-          else
-            candidate t (add_n_edge c cl 1 p) n *)
     in candidate (graphe_complet t) (graphe_complet t) n 1 p cl
 
-  let rectilinear base = let t = generatecandidate (create_tree base) 1 in
+  let rectilinear base = let t = generatecandidate (create_tree base) 1000 in
   getbranches t
 
    (*Euclidien*)
@@ -358,10 +298,10 @@ open Display
     
       (**ajoute un point généré aléatoirement dans le triangle formé par 3 points choisi aléatoirement parmi ceux de t
       puis supprime les arètes entre ces 3 points et les relie à p*)
-      let addtotree_e t= let _ = Printf.printf "début addtotree_e\n%!" in
+      let addtotree_e t = 
         if(lengthlist (gettreepoints t)) < 3 then 
         failwith"moins de 3 points" 
-        else let l = (gettriangle t) in let _ = Printf.printf "on a les points\n%!" in
+        else let l = (gettriangle t) in
           if (lengthlist l) < 3 then
             failwith"??" 
           else let pt=genpoint l in
@@ -439,9 +379,9 @@ open Display
       and aux_list tl p_b p_r = match tl with
       []->[],false
       |t::q-> let try1 = aux t p_b p_r in if snd try1 then (fst try1::q),true else let res = aux_list q p_b p_r in t::(fst res),snd res
-      in let _ = Printf.printf "p_r :";dump_coord p_r;Printf.printf "\n%!" in let try1 = aux t p_b p_r in if snd try1 then fst try1 else failwith"p_r introuvable dans t"
+      in let try1 = aux t p_b p_r in if snd try1 then fst try1 else failwith"p_r introuvable dans t"
       
-      let del_p_b t p_b = let _ = Printf.printf "avant del_pb :";print_tree t;Printf.printf "\n%!" in
+      let del_p_b t p_b =
       let rec aux_list tl p_b = match tl with
       []->[]
       |t::q-> let n_t = aux t p_b in 
@@ -454,11 +394,11 @@ open Display
         Noeud(b,c,tl) -> Noeud(b,c,aux_list tl p_b)
       in aux t p_b
       
-      let change_edge t p_b = let _ = Printf.printf "change_edge :\n%!"; print_tree t;Printf.printf "p_b : "; dump_coord p_b; Printf.printf "\n%!" in let p_r = get_p_r t p_b in match t with
+      let change_edge t p_b = let p_r = get_p_r t p_b in match t with
       Noeud(_,c,tl) -> if c = p_b then match tl with
-      st::[] -> let _ = Printf.printf "p_b est la racine\n%!" in add_p_b_to_p_r st p_b p_r
+      st::[] -> add_p_b_to_p_r st p_b p_r
       |_ ->failwith"mauvais arbre"
-      else let _ =Printf.printf "p_b pas racine\n%!" in let del_t = del_p_b t p_b in let _ = Printf.printf "après del :"; print_tree del_t; Printf.printf "\n%!" in
+      else let del_t = del_p_b t p_b in
       add_p_b_to_p_r del_t p_b p_r
 
       (**renvoie les coordonnées de base qui n'ont pas de sous-arbre ou sont la racine *)
@@ -482,7 +422,7 @@ open Display
 
       let newbranch t = change_edge t (getrandom (getbase1 t))
     
-      let randomchange t = let r = Random.int 4  in let _=Printf.printf "%d\n%!" r in match r with
+      let randomchange t = let r = Random.int 4 in match r with
       |0->addtotree_e t
       |1->if (lengthlist (getrelais t)>0) then mergepoint t else addtotree_e t
       |2->if (lengthlist (getrelais t)>0) then movepoint t else addtotree_e t
@@ -500,3 +440,5 @@ open Display
             generatecandidat_e g (n-1) 
           else generatecandidat_e t (n-1) 
       in generatecandidat_e (create_tree_e p)  n 
+
+  let euclidian l = let t = generatecandidate_e (float_coord_list l) 1000 in getbranches t
