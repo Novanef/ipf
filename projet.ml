@@ -295,6 +295,9 @@ open Display
       match t with
       Noeud(_,_,tl) -> aux t tl
 
+
+      (**retourne une liste de 3 points parmi ceux de l'arbre*)
+    
       let gettriangle t =
         let rec aux tree_list = let first = getrandom tree_list in
           if (nb_subrees first) > 1 || (nb_subtrees_deep first) > 0 then
@@ -308,11 +311,6 @@ open Display
         in let tree_list = get_all_trees t in aux tree_list
 
 
-      (**retourne une liste de 3 points parmi ceux de l'arbre*)
-      let gettriangle t=let rec auxtriangle n r l=if n>0 then let p=getrandom l in auxtriangle (n-1) (p::r) (deletelist p l) 
-      else r
-      in auxtriangle 3 [] (gettreepoints t)
-    
       let pop l=match l with 
       |[]->failwith"liste vide7"
       |p::q->p,q
@@ -364,7 +362,7 @@ open Display
       let addtotree_e t= let _ = Printf.printf "début addtotree_e\n%!" in
         if(lengthlist (gettreepoints t)) < 3 then 
         failwith"moins de 3 points" 
-        else let l = (gettriangle t) in 
+        else let l = (gettriangle t) in let _ = Printf.printf "on a les points\n%!" in
           if (lengthlist l) < 3 then
             failwith"??" 
           else let pt=genpoint l in
