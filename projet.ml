@@ -433,21 +433,21 @@ open Display
       |[]->[]
       |r::q->(auxnew r p)::(auxbnew q p)  in auxnew t (getrandom (getbase1 t))
 
-      let newbranch t=change_edge t (getrandom (getbase1 t))
+      let newbranch t = change_edge t (getrandom (getbase1 t))
     
-      let randomchange t=let r=Random.int 4 in match r with
+      let randomchange t = let r = Random.int 4 in match r with
       |0->addtotree_e t
       |1->if (lengthlist (getrelais t)>0) then mergepoint t else t
       |2->if (lengthlist (getrelais t)>0) then movepoint t else t
       |3-> if (lengthlist (getbase1 t)>0) then newbranch t else t
       |_->failwith"impossible"
       
-      let generatecandidate_e p n=if (lengthlist p)<3 then (create_tree_e p) else let rec generatecandidat_e t c n m=if n=0 then t else let g=randomchange t in 
-      if m=n then generatecandidat_e c c (n-1) 1
+      let generatecandidate_e p n = if (lengthlist p) < 3 then (create_tree_e p) else let rec generatecandidat_e t c n m = if n = 0 then t else let g = randomchange t in 
+      if m = n then generatecandidat_e c c (n-1) 1
       else
         if (is_connexe g p) then 
           if (findcycle g) then
-            if(weight t)>=(weight g) then 
+            if(weight t) >= (weight g) then 
               generatecandidat_e g c (n-1) 1
             else generatecandidat_e t c (n-1) (m+1)
           else generatecandidat_e t c (n-1) (m+1)
