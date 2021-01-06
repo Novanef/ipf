@@ -442,13 +442,18 @@ open Display
       |3-> if (lengthlist (getbase1 t)>0) then newbranch t else t
       |_->failwith"impossible"
       
-      let generatecandidate_e t n=let p=getbase t in if (lengthlist p)<3 then t else let rec generatecandidat_e t n=if n=0 then t else let g=randomchange t in 
-      if n>0 then
-        if (is_connexe g p) then 
-          if (findcycle g) then
-            if(weight t)>=(weight g) then 
-              generatecandidat_e g (n-1)
+      let generatecandidate_e t n= let p = getbase t 
+      in 
+      if (lengthlist p)<3 then 
+      t 
+      else let rec generatecandidat_e t n=if n=0 then t else let g=randomchange t in 
+        if n>0 then
+          if (is_connexe g p) then 
+            if (findcycle g) then
+              if(weight t)>=(weight g) then 
+                generatecandidat_e g (n-1)
+              else generatecandidat_e t (n-1)
             else generatecandidat_e t (n-1)
           else generatecandidat_e t (n-1)
-        else generatecandidat_e t (n-1)
-      else t in generatecandidat_e t n
+        else t 
+      in generatecandidat_e t n
