@@ -297,12 +297,12 @@ open Display
 
 
       (**retourne une liste de 3 points parmi ceux de l'arbre*)
-      let gettriangle t = let _ = Printf.printf "début get_triangle\n%!"; print_tree t; Printf.printf "\n%!" in
-        let rec aux tree_list = let _ = Printf.printf "tree_list :"; dump (getcoord_treelist_nosubtree tree_list); Printf.printf "\n%!" in let first = getrandom tree_list in match first with Noeud(_,f_c,_) -> let _ = Printf.printf "first :"; dump_coord f_c; Printf.printf "\n%!" in
+      let gettriangle t =
+        let rec aux tree_list =  let first = getrandom tree_list in match first with Noeud(_,f_c,_) ->
           if (nb_subrees first) > 1 || (nb_subtrees_deep first) > 0 then
-            let l = (list_subtree_subtree first)@(list_subtree_subsubtree first) in let _ = Printf.printf "liste des suivant : ["; List.iter (fun c -> match c with (Noeud(_,x,_),Noeud(_,y,_))-> Printf.printf "{"; dump_coord x;dump_coord y; Printf.printf "} ; %!") l ; Printf.printf "]\n%!" in
+            let l = (list_subtree_subtree first)@(list_subtree_subsubtree first) in
             let rest = getrandom l in match rest with
-              (Noeud(_,c2,_),Noeud(_,c3,_)) -> match first with Noeud(_,c1,_) -> let _ = Printf.printf "rest :";dump_coord c2;dump_coord c3;Printf.printf "\n%!" in
+              (Noeud(_,c2,_),Noeud(_,c3,_)) -> match first with Noeud(_,c1,_) ->
                 if are_aligned c1 c2 c3 then
                   aux tree_list
                 else [c1;c2;c3]
@@ -438,10 +438,10 @@ open Display
       else let res = aux_list tl p_b p_r in Noeud(b,c,fst res),snd res
       and aux_list tl p_b p_r = match tl with
       []->[],false
-      |t::q-> let try1 = aux t p_b p_r in if snd try1 then (fst try1::q),true else aux_list q p_b p_r
+      |t::q-> let try1 = aux t p_b p_r in if snd try1 then (fst try1::q),true else let res = aux_list q p_b p_r in t::(fst res),snd res
       in let _ = Printf.printf "p_r :";dump_coord p_r;Printf.printf "\n%!" in let try1 = aux t p_b p_r in if snd try1 then fst try1 else failwith"p_r introuvable dans t"
       
-      let del_p_b t p_b = 
+      let del_p_b t p_b = let _ = Printf.printf "avant del_pb :";print_tree t;Printf.printf "\n%!" in
       let rec aux_list tl p_b = match tl with
       []->[]
       |t::q-> let n_t = aux t p_b in 
@@ -458,8 +458,8 @@ open Display
       Noeud(_,c,tl) -> if c = p_b then match tl with
       st::[] -> let _ = Printf.printf "p_b est la racine\n%!" in add_p_b_to_p_r st p_b p_r
       |_ ->failwith"mauvais arbre"
-      else let _ =Printf.printf "p_b pas racine\n%!" in
-      add_p_b_to_p_r (del_p_b t p_b) p_b p_r
+      else let _ =Printf.printf "p_b pas racine\n%!" in let del_t = del_p_b t p_b in let _ = Printf.printf "après del :"; print_tree del_t; Printf.printf "\n%!" in
+      add_p_b_to_p_r del_t p_b p_r
 
       (**renvoie les coordonnées de base qui n'ont pas de sous-arbre ou sont la racine *)
       let getbase1 t = 
