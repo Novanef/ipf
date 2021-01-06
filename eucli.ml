@@ -15,9 +15,7 @@ module Tree_E = FoncteurTree(Coord_E)
 open Tree_E
 
 let l =  sort_list (Scanf.scanf "%d\n" read_coords)
-let t =    create_tree_e (float_coord_list l)
-let _=Printf.printf "%f\n" (weight t)
-let k=generatecandidate_e t 20
+let k=generatecandidate_e (float_coord_list l) 10
 let _=Printf.printf "%f\n" (weight k)
 let _=draw_eulcidean
 (800,600) 
