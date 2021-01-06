@@ -443,7 +443,7 @@ open Display
       |_->failwith"impossible"
       
       let generatecandidate_e p n=if (lengthlist p)<3 then (create_tree_e p) else let rec generatecandidat_e t c n m=if n=0 then t else let g=randomchange t in 
-      if m=n then generatecandidat_e c c (n-1) 1
+      if m=n&&(weight t)>(weight c) then generatecandidat_e c c (n-1) 1
       else
         if (is_connexe g p) then 
           if (findcycle g) then
