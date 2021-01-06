@@ -317,5 +317,11 @@ and print_tree_list tl = match tl with
   let are_aligned a b c = match a with 
   (xa,ya) -> match b with (xb,yb) -> match c with (xc,yc) ->
   ((xa -- xc) ** (ya -- yb)) -- ((ya -- yc) ** (xa -- xb)) = zero
+
+  let rec is_list_a_line l = match l with
+  []->true
+  |a::[] -> true
+  |a::b::[]->true
+  |a::b::c::q -> are_aligned a b c && is_list_a_line q
 end
 

@@ -493,7 +493,8 @@ open Display
       |_->failwith"impossible"
       
 
-      let generatecandidate_e p n=if (lengthlist p)<3 then (create_tree_e p) else 
+      let generatecandidate_e p n= if (lengthlist p)<3 then (create_tree_e p) else 
+      if (is_list_a_line p) then create_tree_e (sort_list p) else
         let rec generatecandidat_e t n = 
         if n=0 then 
           t 
