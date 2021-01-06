@@ -272,6 +272,42 @@ open Display
       let isintriangle p v1 v2 v3=let res1,res2,res3=(sign p v1 v2),(sign p v2 v3),(sign p v3 v1) in
       not((res1<0.||res2<0.||res3<0.)&&(res1>0.||res2>0.||res3>0.))
       
+      let nb_subtrees_deep t =
+        let rec aux tl = match tl with
+        []->0
+        |t::q-> if nb_subrees t > 0 then 1 + aux q else aux q
+      in match t with
+      Noeud(_,_,tl) -> aux tl
+
+      let rec all_couples l = match l with
+      []->[]
+      |t::[] -> []
+      |t::q -> let func t x = (t,x) in (List.map (func t) q)@(all_couples q)
+
+      let list_subtree_subtree t = match t with
+      Noeud(_,_,tl) -> all_couples tl
+
+      let list_subtree_subsubtree t =
+      let rec aux t tl = match tl with
+      []->[]
+      |Noeud(b,c,ttl)::q -> let func t x = (t,x) in (List.map (func t) ttl )@(aux t q)
+      in
+      match t with
+      Noeud(_,_,tl) -> aux t tl
+
+      let gettriangle t =
+        let rec aux tree_list = let first = getrandom tree_list in
+          if (nb_subrees first) > 1 || (nb_subtrees_deep first) > 0 then
+            let l = (list_subtree_subtree first)@(list_subtree_subsubtree first) in
+            let rest = getrandom l in match rest with
+              (Noeud(_,c2,_),Noeud(_,c3,_)) -> match first with Noeud(_,c1,_) -> 
+                if are_aligned c1 c2 c3 then
+                  aux tree_list
+                else (c1,c2,c3)
+          else aux (deletelist first tree_list)
+        in let tree_list = get_all_trees t in aux tree_list
+
+
       (**retourne une liste de 3 points parmi ceux de l'arbre*)
       let gettriangle t=let rec auxtriangle n r l=if n>0 then let p=getrandom l in auxtriangle (n-1) (p::r) (deletelist p l) 
       else r
@@ -312,7 +348,9 @@ open Display
       let subtreelist t l=let rec auxsub t l k=match l with
       |[]->k
       |p::q-> auxsub t q ((subtree p t)::k) in auxsub t l [] 
-       
+      
+
+
       (**retourne une liste de sous arbres qui ne sont pas directement reliés entre eux*)
       let rec checktriangle tl l=match tl with 
       |[]->[]
@@ -323,12 +361,24 @@ open Display
     
       (**ajoute un point généré aléatoirement dans le triangle formé par 3 points choisi aléatoirement parmi ceux de t
       puis supprime les arètes entre ces 3 points et les relie à p*)
-      let addtotree_e t=if(lengthlist (gettreepoints t))<3 then failwith"moins de 3 points" 
-      else let l=(gettriangle t) in if (lengthlist l)<3 then failwith"??" else let pt=genpoint l in let rec auxadd t p l=match p with
-      |Noeud(b,c,tl)->if not(mem l c) then addtree t pt l,true else Noeud(b,c,auxbadd tl l),false
-      and auxbadd tl l=match tl with 
-      |[]->[]
-      |p::q->if snd(auxadd t p l) then fst(auxadd t p l)::q else p::(auxbadd q l) in fst(auxadd t t l)
+      let addtotree_e t= let _ = Printf.printf "début addtotree_e\n%!" in
+        if(lengthlist (gettreepoints t)) < 3 then 
+        failwith"moins de 3 points" 
+        else let l = (gettriangle t) in 
+          if (lengthlist l) < 3 then
+            failwith"??" 
+          else let pt=genpoint l in
+            let rec auxadd t p l = match p with
+              |Noeud(b,c,tl)->
+                if not(mem l c) then
+                  addtree t pt l,true 
+                else Noeud(b,c,auxbadd tl l),false
+            and auxbadd tl l=match tl with 
+              |[]->[]
+              |p::q->
+                if snd(auxadd t p l) then 
+                  fst(auxadd t p l)::q 
+                else p::(auxbadd q l) in fst(auxadd t t l)
     
     
     
@@ -435,7 +485,7 @@ open Display
 
       let newbranch t = change_edge t (getrandom (getbase1 t))
     
-      let randomchange t = let r = Random.int 4  in let _=Printf.printf "%d" r in match r with
+      let randomchange t = let r = Random.int 4  in let _=Printf.printf "%d\n%!" r in match r with
       |0->addtotree_e t
       |1->if (lengthlist (getrelais t)>0) then mergepoint t else addtotree_e t
       |2->if (lengthlist (getrelais t)>0) then movepoint t else addtotree_e t
@@ -443,12 +493,12 @@ open Display
       |_->failwith"impossible"
       
 
-      let generatecandidate_e p n=if (lengthlist p)<3 then (create_tree_e p) else let rec generatecandidat_e t n=if n=0 then t else let g=randomchange t in 
-        if (is_connexe g p) then 
-          if (findcycle g) then
-            if(weight t) >= (weight g) then 
-              generatecandidat_e g (n-1) 
-            else generatecandidat_e t (n-1) 
+      let generatecandidate_e p n=if (lengthlist p)<3 then (create_tree_e p) else 
+        let rec generatecandidat_e t n = 
+        if n=0 then 
+          t 
+        else let g = randomchange t in 
+          if(weight t) >= (weight g) then 
+            generatecandidat_e g (n-1) 
           else generatecandidat_e t (n-1) 
-        else generatecandidat_e t (n-1) 
-        in generatecandidat_e (create_tree_e p)  n 
+      in generatecandidat_e (create_tree_e p)  n 

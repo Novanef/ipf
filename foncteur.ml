@@ -4,6 +4,7 @@ sig
   val zero : dot
   val (++) : dot -> dot -> dot
   val (--) : dot -> dot -> dot
+  val ( ** ) : dot -> dot -> dot
   val d_abs : dot->dot
   val distance : dot*dot -> dot*dot -> dot
   val dump_coord : dot*dot -> unit
@@ -18,6 +19,7 @@ struct
 
   let (++) d1 d2 = d1 + d2
   let (--) d1 d2 = d1 - d2
+  let ( ** ) d1 d2 = d1 * d2
 
   let d_abs d = abs d
 
@@ -40,6 +42,7 @@ let zero = 0.0
 
 let (++) d1 d2 = d1 +. d2
 let (--) d1 d2 = d1 -. d2
+let ( ** ) d1 d2 = d1 *. d2
 let d_abs d = abs_float d
 let distance c1 c2 = match c1 with
 |(x1,y1) -> match c2 with
@@ -59,6 +62,10 @@ struct
   type tree = Noeud of bool * coord * tree list
 
   let (++) = X.(++)
+
+  let (--) = X.(--)
+
+  let ( ** ) = X.( ** )
 
   let zero = X.zero
 
@@ -286,12 +293,29 @@ and print_tree_list tl = match tl with
   []->false
   |t::q -> (is_tree_useful t) || (is_tree_list_useful q)
 
+  (**supprime les branches de t ne contenant pas de points de la base *)
   let rec del_useless_branches t = match t with
   Noeud(b,c,tl) -> if not (is_tree_list_useful tl) then Noeud(b,c,[]) else Noeud(b,c,del_useless_branches_list tl)
   and del_useless_branches_list tl = match tl with
   []->[]
   |t::q-> if not (is_tree_useful t) then del_useless_branches_list q else (del_useless_branches t)::(del_useless_branches_list q) 
 
+  (**tri l par ordre croissant *)
   let sort_list l = List.sort (fun c1 c2 -> if c1 = c2 then 0 else if c1 < c2 then -1 else 1) l
+
+  (**retourne tous les abres de t (t inclus) *)
+  let rec get_all_trees t = match t with
+  Noeud(_,_,tl) -> t::(get_all_trees_list tl)
+  and get_all_trees_list tl = match tl with
+  []->[]
+  |t::q-> (get_all_trees t)@(get_all_trees_list q)
+
+  (**retourne le nombre de sous arbres direct de t *)
+  let nb_subrees t = match t with
+  Noeud(_,_,tl) -> List.length tl
+
+  let are_aligned a b c = match a with 
+  (xa,ya) -> match b with (xb,yb) -> match c with (xc,yc) ->
+  ((xa -- xc) ** (ya -- yb)) -- ((ya -- yc) ** (xa -- xb)) = zero
 end
 
