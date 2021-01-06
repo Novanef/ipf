@@ -128,6 +128,7 @@ struct
       |t::q-> aux_ord_list q (aux_ord t yl)
     in aux_ord t []
 
+
   (**renvoie la listes des coordonnées d'un arbre*)
   let getcoordinates t = 
     let xl = getabsciss t in 
@@ -290,5 +291,7 @@ and print_tree_list tl = match tl with
   and del_useless_branches_list tl = match tl with
   []->[]
   |t::q-> if not (is_tree_useful t) then del_useless_branches_list q else (del_useless_branches t)::(del_useless_branches_list q) 
+
+  let sort_list l = List.sort (fun c1 c2 -> if c1 = c2 then 0 else if c1 < c2 then -1 else 1) l
 end
 

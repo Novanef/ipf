@@ -14,7 +14,7 @@ let read_coords =
 module Tree_R = FoncteurTree(Coord_R)
 open Tree_R
 
-let l =  Scanf.scanf "%d\n" read_coords
+let l =  sort_list (Scanf.scanf "%d\n" read_coords)
 let branches = rectilinear l
 let _=draw_rectilinear 
 (800,600) 

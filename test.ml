@@ -60,3 +60,7 @@ let l = Scanf.scanf "%d\n" (fun x -> x)
 let _ = Printf.printf "l : %i\n%!" l
 let l = Scanf.scanf "%d\n" (fun x -> x)
 let _ = Printf.printf "l2 : %i\n%!" l
+
+ open Foncteur open Projet open Projet.Tree_R;;
+let t = create_tree [(1,1);(3,3);(0,0)];;
+let g = graphe_complet t;;
