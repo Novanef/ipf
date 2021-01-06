@@ -297,7 +297,6 @@ open Display
 
 
       (**retourne une liste de 3 points parmi ceux de l'arbre*)
-    
       let gettriangle t =
         let rec aux tree_list = let first = getrandom tree_list in
           if (nb_subrees first) > 1 || (nb_subtrees_deep first) > 0 then
@@ -306,7 +305,7 @@ open Display
               (Noeud(_,c2,_),Noeud(_,c3,_)) -> match first with Noeud(_,c1,_) -> 
                 if are_aligned c1 c2 c3 then
                   aux tree_list
-                else (c1,c2,c3)
+                else [c1;c2;c3]
           else aux (deletelist first tree_list)
         in let tree_list = get_all_trees t in aux tree_list
 
