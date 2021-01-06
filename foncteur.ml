@@ -137,7 +137,7 @@ struct
 
   let getcoord_treelist tl = let t = Noeud(false,(zero,zero),tl) in let l = getcoordinates t in remove_last l
 
-  (**renvoie les coord de tous les arbres de la liste tl *)
+  (**renvoie les coord de tous les arbres de la liste tl mais pas celles de leurs sous-abres*)
   let rec getcoord_treelist_nosubtree tl = match tl with
   []->[]
   |t::q-> match t with
