@@ -1,6 +1,8 @@
-open Foncteur
-open Projet
+open Tree
+open Eucli
 open Display
+open Eucli.Euclidian_Tree
+
 let _ = Random.self_init ()
 let read_coords =
     let rec aux acc n =
@@ -10,9 +12,6 @@ let read_coords =
              in aux (c::acc) (n-1)
     in
     fun n -> aux [] n
-
-module Tree_E = FoncteurTree(Coord_E)
-open Tree_E
 
 let l =  sort_list (Scanf.scanf "%d\n" read_coords)
 let branches = euclidian l

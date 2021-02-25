@@ -1,6 +1,8 @@
-open Foncteur
-open Projet
+open Tree
+open Recti
 open Display
+open Recti.Rectilinear_Tree
+
 let _ = Random.self_init ()
 let read_coords =
     let rec aux acc n =
@@ -10,9 +12,6 @@ let read_coords =
              in aux (c::acc) (n-1)
     in
     fun n -> aux [] n
-
-module Tree_R = FoncteurTree(Coord_R)
-open Tree_R
 
 let l =  sort_list (Scanf.scanf "%d\n" read_coords)
 let branches = rectilinear l
